@@ -22,18 +22,9 @@ This is not an official NREL tool. The original NREL B2U spreadsheet user agreem
 | `tests/` | Regression and smoke tests. |
 | `docs/` | Additional documentation. |
 
-## Currency convention
+## Monetary convention
 
-The v1.0 API is currency-neutral. All monetary values used by the core B2U calculation are interpreted in `scenario.currency`.
-
-The core model does **not** convert currencies internally. Currency conversion, when needed, happens only while constructing a scenario. For example, the Norwegian scenario factory converts documented reference assumptions to NOK before running the B2U calculation.
-
-Consequences:
-
-- Core fields use names such as `total_npv`, `annual_revenue`, `selling_price_per_kwh`, and `purchase_price_per_kwh_nameplate`.
-- Old development names ending in `_usd` have been removed from the core API when the value is actually a scenario-currency value.
-- Norwegian cases use `currency == "NOK"` and are defined excluding VAT.
-- VAT metadata is recorded in `CurrencyAssumptions`, but VAT is not included in NPV or profitability calculations.
+All monetary inputs and outputs are interpreted in the scenario currency. The core model does not perform currency conversion; scenario factories are responsible for providing values in the intended currency. Norwegian cases are NOK values excluding VAT.
 
 See [`docs/model_overview.md`](docs/model_overview.md), [`docs/norway_scenarios.md`](docs/norway_scenarios.md), [`docs/reproducibility.md`](docs/reproducibility.md), and [`docs/outputs.md`](docs/outputs.md) for details.
 
@@ -96,7 +87,7 @@ Generate figures from the CSV outputs:
 python plot_norway_extended_analysis.py
 ```
 
-The scripts write CSV files to `data/` and figures to `Figures/`. These directories are treated as generated outputs unless explicitly included for archival purposes.
+The scripts write generated files under `outputs/`: CSV tables in `outputs/tables/` and figures in `outputs/figures/`. The directory is treated as generated output unless explicitly archived.
 
 ## Limitations
 

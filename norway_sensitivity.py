@@ -16,6 +16,9 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Iterable
 
+REPO_ROOT = Path(__file__).resolve().parent
+TABLES_DIR = REPO_ROOT / "outputs" / "tables"
+
 import b2u
 from Batterycomponents import Batterymodule, pack
 from max_purchase_price import solve_npv_break_even_selling_price
@@ -217,7 +220,7 @@ def sensitivity_cases(
 
 
 def _currency_value(section: dict, key: str, currency: str):
-    """Return a monetary value from a v1.0 currency-neutral result section."""
+    """Return a monetary value from a result section."""
     return section.get(key)
 
 
@@ -297,7 +300,7 @@ def run_all_sensitivities() -> list[dict[str, float | str]]:
 
 
 def write_sensitivity_csv(
-    path: str | Path = "data/norway_sensitivity_results.csv",
+    path: str | Path = TABLES_DIR / "norway_sensitivity_results.csv",
 ) -> Path:
     rows = run_all_sensitivities()
     output_path = Path(path)

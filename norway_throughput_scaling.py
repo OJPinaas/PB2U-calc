@@ -14,6 +14,9 @@ import csv
 from dataclasses import replace
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent
+TABLES_DIR = REPO_ROOT / "outputs" / "tables"
+
 import b2u
 from Batterycomponents import Batterymodule, pack
 from norway_scenarios import (
@@ -381,8 +384,8 @@ def throughput_unit_requirements(target_annual_throughput_kwh: float = 1_000_000
 
 
 def write_csvs(
-    results_path: str | Path = "data/norway_throughput_scaling_results.csv",
-    summary_path: str | Path = "data/norway_throughput_scaling_summary.csv",
+    results_path: str | Path = TABLES_DIR / "norway_throughput_scaling_results.csv",
+    summary_path: str | Path = TABLES_DIR / "norway_throughput_scaling_summary.csv",
 ) -> tuple[Path, Path]:
     rows = run_all_scaling()
     results_path = Path(results_path)
@@ -400,7 +403,7 @@ def write_csvs(
         writer.writeheader()
         writer.writerows(summary)
 
-    unit_req_path = Path("data/throughput_unit_requirements_1gwh.csv")
+    unit_req_path = TABLES_DIR / "throughput_unit_requirements_1gwh.csv"
     with unit_req_path.open("w", newline="") as csvfile:
         unit_rows = throughput_unit_requirements(1_000_000.0)
         writer = csv.DictWriter(csvfile, fieldnames=list(unit_rows[0].keys()))

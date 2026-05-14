@@ -11,12 +11,6 @@ This repository contains a script-based Python implementation and extension of t
 - `norway_scenarios.py` defines Norwegian scenario factories and battery presets.
 - `thesis_scenarios.py`, `norway_sensitivity.py`, `norway_throughput_scaling.py` and `plot_norway_extended_analysis.py` generate the thesis outputs.
 
-## Currency rule
-
-The core model is currency-neutral. All monetary values passed into `b2u.py` are interpreted in `scenario.currency`. The core model does not perform automatic currency conversion.
-
-For example, a USD reference scenario passes USD values to the model and labels the result as USD. A Norwegian scenario passes NOK values to the same fields and labels the result as NOK. Currency conversion for Norwegian assumptions happens during scenario construction, not in the core calculation engine.
-
 ## Result structure
 
 `b2u.run_b2u_scenario(component, scenario)` returns a `B2UModelResult`. Calling `.to_dict()` returns nested dictionaries for:

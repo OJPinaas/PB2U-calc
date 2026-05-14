@@ -6,8 +6,8 @@ Figures use restrained styling so they remain legible in the thesis PDF.
 Plotting conventions:
 - Norway monetary inputs and outputs are displayed in NOK.
 - NPV axes are displayed in MNOK to avoid scientific-notation axes.
-- The old ``break_even_selling_price_per_kwh`` tornado is not generated; it is
-  an alias for annual break-even selling price and created duplicate figures.
+- The break-even selling-price tornado excludes selling price as an input,
+  because the output metric is itself a break-even selling price.
 """
 
 from __future__ import annotations
@@ -20,8 +20,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import cm
 
-DATA_DIR = Path("data")
-FIG_DIR = Path("Figures") / "norway_extended"
+REPO_ROOT = Path(__file__).resolve().parent
+TABLES_DIR = REPO_ROOT / "outputs" / "tables"
+FIG_DIR = REPO_ROOT / "outputs" / "figures"
 FIG_DIR.mkdir(parents=True, exist_ok=True)
 
 MNOK = 1_000_000.0
@@ -278,7 +279,7 @@ def _plot_throughput_break_even_price(
 
 
 def plot_throughput_scaling():
-    path = DATA_DIR / "norway_throughput_scaling_results.csv"
+    path = TABLES_DIR / "norway_throughput_scaling_results.csv"
     if not path.exists():
         print(f"Skipping throughput plot; missing {path}")
         return
@@ -315,7 +316,7 @@ def plot_sensitivity_tornado(metric: str = "npv") -> None:
     marks the nearest base-case value within that sweep. This is tornado-style
     ranking by spread, not a probability distribution.
     """
-    path = DATA_DIR / "norway_sensitivity_results.csv"
+    path = TABLES_DIR / "norway_sensitivity_results.csv"
     if not path.exists():
         print(f"Skipping sensitivity plot; missing {path}")
         return
@@ -402,7 +403,7 @@ def plot_sensitivity_tornado(metric: str = "npv") -> None:
 
 def plot_npv_vs_selling_price() -> None:
     """Line plot of NPV vs selling price for each component."""
-    path = DATA_DIR / "norway_sensitivity_results.csv"
+    path = TABLES_DIR / "norway_sensitivity_results.csv"
     if not path.exists():
         return
 
@@ -437,7 +438,7 @@ def plot_npv_vs_selling_price() -> None:
 
 def plot_purchase_price_feasibility() -> None:
     """Plot NPV vs purchase price."""
-    path = DATA_DIR / "norway_sensitivity_results.csv"
+    path = TABLES_DIR / "norway_sensitivity_results.csv"
     if not path.exists():
         return
 
@@ -472,7 +473,7 @@ def plot_purchase_price_feasibility() -> None:
 
 def plot_leaf_threshold_sensitivity() -> None:
     """Leaf acceptance threshold vs usable fraction and NPV."""
-    path = DATA_DIR / "norway_sensitivity_results.csv"
+    path = TABLES_DIR / "norway_sensitivity_results.csv"
     if not path.exists():
         return
 
@@ -520,7 +521,7 @@ def plot_current_vs_npv_break_even_selling_price() -> None:
     look like a flat line against the input price, which is correct but not
     informative.
     """
-    thesis_path = DATA_DIR / "thesis_scenario_results.csv"
+    thesis_path = TABLES_DIR / "thesis_scenario_results.csv"
     if not thesis_path.exists():
         print(f"Skipping scenario-vs-break-even selling price; missing {thesis_path}")
         return
@@ -616,7 +617,7 @@ def plot_units_required_for_1gwh() -> None:
     module tests after disassembly. This makes the hybrid triage workload visible:
     it starts with pack-level handling, but adds module tests only for failed packs.
     """
-    path = DATA_DIR / "throughput_unit_requirements_1gwh.csv"
+    path = TABLES_DIR / "throughput_unit_requirements_1gwh.csv"
     if not path.exists():
         print(f"Skipping unit-requirement plot; missing {path}")
         return

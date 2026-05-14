@@ -10,9 +10,9 @@ from thesis_scenarios import make_nrel_reference_module, make_nrel_reference_sce
 
 
 class TestThesisOutputPaths(unittest.TestCase):
-    def test_data_dir_is_inside_repository_root(self):
-        expected = Path(thesis_scenarios.__file__).resolve().parent / "data"
-        self.assertEqual(thesis_scenarios.DATA_DIR, expected)
+    def test_table_output_dir_is_inside_repository_root(self):
+        expected = Path(thesis_scenarios.__file__).resolve().parent / "outputs" / "tables"
+        self.assertEqual(thesis_scenarios.TABLES_DIR, expected)
 
 class TestNRELReferenceCase(unittest.TestCase):
     def test_nrel_reference_is_near_break_even(self):

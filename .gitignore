@@ -25,6 +25,11 @@ __pycache__/
 # misc
 # *.pdf
 
+# Generated model outputs
+outputs/
+data/
+Figures/
+
 
 # Distribution / packaging
 .Python

@@ -36,16 +36,16 @@ python norway_throughput_scaling.py
 python plot_norway_extended_analysis.py
 ```
 
-The scripts write CSV outputs to `data/` and figures to `Figures/norway_extended/`.
+The scripts write CSV outputs to `outputs/tables/` and figures to `outputs/figures/`.
 
 ## Expected generated files
 
 Typical generated CSV files include:
 
-- `data/thesis_scenario_results.csv`
-- `data/norway_sensitivity_results.csv`
-- `data/norway_throughput_scaling_results.csv`
-- `data/norway_throughput_scaling_summary.csv`
-- `data/throughput_unit_requirements_1gwh.csv`
+- `outputs/tables/thesis_scenario_results.csv`
+- `outputs/tables/norway_sensitivity_results.csv`
+- `outputs/tables/norway_throughput_scaling_results.csv`
+- `outputs/tables/norway_throughput_scaling_summary.csv`
+- `outputs/tables/throughput_unit_requirements_1gwh.csv`
 
 The exact numerical output can show very small Monte Carlo sampling variation for cases where component populations are sampled. The thesis-level conclusions are based on scenario-scale differences that are much larger than this numerical noise.

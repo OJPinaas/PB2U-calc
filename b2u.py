@@ -563,9 +563,8 @@ class B2UModelResult:
     def to_dict(self) -> Dict[str, Any]:
         """Return a plain dictionary using currency-neutral monetary keys.
 
-        Monetary values are expressed in ``currency["currency"]``. No
-        currency-specific aliases such as ``total_npv_nok`` are added in the
-        v1.0 API; consumers should read the explicit currency metadata instead.
+        Monetary values are expressed in ``currency["currency"]``. Consumers
+        should read that metadata when formatting monetary outputs.
         """
         return {
             "module": self.module,

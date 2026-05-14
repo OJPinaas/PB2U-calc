@@ -122,7 +122,6 @@ def with_market_assumptions(
             cell_soh_std=module.cell_soh_std,
             min_cell_soh=module.min_cell_soh,
             max_cell_soh=module.max_cell_soh,
-            rng_seed=module.rng_seed,
         )
 
     if isinstance(component, Batterymodule):

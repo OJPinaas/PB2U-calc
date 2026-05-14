@@ -72,6 +72,7 @@ def _clone_module_with_purchase_price(
         cell_soh_std=module.cell_soh_std,
         min_cell_soh=module.min_cell_soh,
         max_cell_soh=module.max_cell_soh,
+        rng_seed=module.rng_seed,
     )
 
 

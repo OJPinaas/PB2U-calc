@@ -1,6 +1,9 @@
 import numpy as np
 
 
+DEFAULT_MODULE_RNG_SEED = 42
+
+
 class pack:
     def __init__(self, modules: list):
         self.modules = modules
@@ -107,6 +110,9 @@ class Batterymodule:
         self.config = f"{self.seriescells}S{self.paralellcells}P"
         self.chemistry = chemistry
         self.cell_fault_rate = cell_fault_rate
+        self.rng_seed = (
+            DEFAULT_MODULE_RNG_SEED if rng_seed is None else int(rng_seed)
+        )
 
         # Economic properties
         self.purchase_price = purchase_price
@@ -120,7 +126,8 @@ class Batterymodule:
         self.calculate_cell_failure_impact()
 
     def init_cells(self, chemistry, cell_fault_rate, rng_seed=None):
-        rng = np.random.default_rng(rng_seed)
+        seed = self.rng_seed if rng_seed is None else rng_seed
+        rng = np.random.default_rng(seed)
         self.cells = []
         for _ in range(self.seriescells):
             series_group = []
@@ -139,7 +146,8 @@ class Batterymodule:
             self.cells.append(series_group)
 
     def reset_cell_states(self, rng_seed=None):
-        rng = np.random.default_rng(rng_seed)
+        seed = self.rng_seed if rng_seed is None else rng_seed
+        rng = np.random.default_rng(seed)
         for series_group in self.cells:
             for module_cell in series_group:
                 module_cell.sample_state(rng=rng)
@@ -262,7 +270,7 @@ class cell:
 
     def sample_state(self, rng=None):
         if rng is None:
-            rng = np.random.default_rng()
+            rng = np.random.default_rng(DEFAULT_MODULE_RNG_SEED)
         if self.soh_std > 0:
             sampled_soh = rng.normal(self.mean_soh, self.soh_std)
         else:
@@ -273,7 +281,7 @@ class cell:
 
     def calculate_failed(self, rng=None):
         if rng is None:
-            rng = np.random.default_rng()
+            rng = np.random.default_rng(DEFAULT_MODULE_RNG_SEED)
         self.failed = bool(rng.random() < self.cell_fault_rate)
         return self.failed
 

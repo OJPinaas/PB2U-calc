@@ -55,6 +55,23 @@ def nok_per_m_from_usd_per_km(value_usd_per_km: float) -> float:
 # deliberately separate from the usability threshold in SCENARIO_PRESETS ->
 # reliability -> min_remaining_energy_fraction.  This allows the Monte Carlo
 # intake model to sample modules below the acceptance threshold and reject them.
+
+MODULE_RNG_SEEDS = {
+    "base": {"leaf": 20261429, "tesla": 20261430},
+    "conservative": {"leaf": 20261431, "tesla": 20261432},
+    "optimistic": {"leaf": 20261433, "tesla": 20261434},
+    "high_failure": {"leaf": 20261435, "tesla": 20261436},
+}
+
+
+def _module_rng_seed(
+    scenario_name: str,
+    component_kind: str,
+    offset: int = 0,
+) -> int:
+    """Return deterministic component-state seed for Norway component factories."""
+    return MODULE_RNG_SEEDS[scenario_name][component_kind] + offset
+
 MODULE_PRESETS = {
     "base": {
         "leaf": {
@@ -372,8 +389,13 @@ def _economic_reference_usd_values_to_nok(values: dict[str, float | None]) -> di
     return converted
 
 
-def make_leaf_gen1_module(scenario_name: str = "base") -> Batterymodule:
+def make_leaf_gen1_module(
+    scenario_name: str = "base",
+    rng_seed: int | None = None,
+) -> Batterymodule:
     preset = MODULE_PRESETS[scenario_name]["leaf"]
+    if rng_seed is None:
+        rng_seed = _module_rng_seed(scenario_name, "leaf")
     return Batterymodule(
         nameplate_energy_kWh=0.5,
         weight_kg=3.8,
@@ -390,6 +412,7 @@ def make_leaf_gen1_module(scenario_name: str = "base") -> Batterymodule:
         max_cell_soh=preset["max_cell_soh"],
         forced_selling_price_per_kWh=LEAF_MODULE_MARKET_SELLING_PRICE_NOK_PER_KWH,
         chemistry="LMO",
+        rng_seed=rng_seed,
     )
 
 
@@ -413,6 +436,7 @@ def make_leaf_gen1_module_from_pack_purchase(
     scenario_name: str = "base",
     pack_purchase_price_reference_usd_per_kwh: float | None = 12.0,
     pack_purchase_price_nok_per_kwh: float | None = None,
+    rng_seed: int | None = None,
 ) -> Batterymodule:
     """Create a Leaf module when the facility buys complete packs, not modules.
 
@@ -423,7 +447,7 @@ def make_leaf_gen1_module_from_pack_purchase(
     per kWh is used because the facility buys complete packs rather than already
     separated, screened modules.
     """
-    module = make_leaf_gen1_module(scenario_name)
+    module = make_leaf_gen1_module(scenario_name, rng_seed=rng_seed)
     if pack_purchase_price_nok_per_kwh is None:
         if pack_purchase_price_reference_usd_per_kwh is None:
             raise ValueError(
@@ -645,12 +669,23 @@ def make_leaf_gen1_pack(
     """
     if modules_per_pack < 1:
         raise ValueError("modules_per_pack must be at least 1")
-    modules = [make_leaf_gen1_module(scenario_name) for _ in range(modules_per_pack)]
+    modules = [
+        make_leaf_gen1_module(
+            scenario_name,
+            rng_seed=_module_rng_seed(scenario_name, "leaf", idx),
+        )
+        for idx in range(modules_per_pack)
+    ]
     return pack([modules])
 
 
-def make_tesla_model_s_gen1_module(scenario_name: str = "base") -> Batterymodule:
+def make_tesla_model_s_gen1_module(
+    scenario_name: str = "base",
+    rng_seed: int | None = None,
+) -> Batterymodule:
     preset = MODULE_PRESETS[scenario_name]["tesla"]
+    if rng_seed is None:
+        rng_seed = _module_rng_seed(scenario_name, "tesla")
     return Batterymodule(
         nameplate_energy_kWh=5.3,
         weight_kg=25.6,
@@ -667,6 +702,7 @@ def make_tesla_model_s_gen1_module(scenario_name: str = "base") -> Batterymodule
         max_cell_soh=preset["max_cell_soh"],
         forced_selling_price_per_kWh=TESLA_MODULE_MARKET_SELLING_PRICE_NOK_PER_KWH,
         chemistry="NCA",
+        rng_seed=rng_seed,
     )
 
 

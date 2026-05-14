@@ -1,0 +1,43 @@
+name: battery-tea
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.11
+  - pip
+
+  # Core scientific stack
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - jupyterlab
+  - ipykernel
+
+  # Battery modeling
+  - pybamm
+
+  # Calibration / stats / uncertainty
+  - scikit-learn
+  - statsmodels
+  - lmfit
+  - emcee
+  - SALib
+
+  # Optimization + TEA utilities
+  - cvxpy
+  - pyomo
+  - numpy-financial
+
+  # General utilities
+  - pint
+  - pyyaml
+  - tqdm
+
+  # I/O (optional but common)
+  - h5py
+
+  # If you want pack/module simulations around PyBaMM
+  - pip:
+      - liionpack
+      - blast-lite
+      

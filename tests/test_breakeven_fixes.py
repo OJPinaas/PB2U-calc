@@ -6,7 +6,7 @@ Covers:
 3. Zero sellable energy gives NaN for annual break-even selling price
 4. NPV break-even selling price solver returns a price with NPV ≈ 0
 5. Leaf base/reference case has positive sellable energy
-6. Norway plot x-values for USD price parameters are converted to NOK
+6. Norway plot x-values are already stored in scenario currency
 7. Selling price is excluded from break-even-selling-price tornado plots
 """
 from __future__ import annotations
@@ -24,7 +24,6 @@ import b2u
 from Batterycomponents import Batterymodule
 from max_purchase_price import solve_npv_break_even_selling_price
 from norway_scenarios import (
-    NOK_PER_USD,
     make_leaf_gen1_module,
     make_leaf_gen1_pack,
     make_norway_scenario,
@@ -33,8 +32,7 @@ from norway_scenarios import (
 from plot_norway_extended_analysis import (
     _BREAK_EVEN_SELLING_PRICE_METRICS,
     _METRIC_LABELS,
-    _USD_PRICE_PARAMETERS,
-    _convert_parameter_value_to_nok,
+    _display_parameter_value,
 )
 
 
@@ -61,7 +59,7 @@ def _make_simple_module(selling_price: float, warranty_fraction: float = 0.05) -
 
 def _annual_break_even(module, scenario):
     result = b2u.run_b2u_scenario(module, scenario).to_dict()
-    return result["unit_economics"]["annual_break_even_selling_price_usd_per_kwh"]
+    return result["unit_economics"]["annual_break_even_selling_price_per_kwh"]
 
 
 class TestAnnualBreakEvenSellingPriceIndependence(unittest.TestCase):
@@ -110,7 +108,7 @@ class TestAnnualBreakEvenSellingPriceIndependence(unittest.TestCase):
         )
         scenario = b2u.B2UScenario()
         result = b2u.run_b2u_scenario(module, scenario).to_dict()
-        be = result["unit_economics"]["annual_break_even_selling_price_usd_per_kwh"]
+        be = result["unit_economics"]["annual_break_even_selling_price_per_kwh"]
         self.assertTrue(math.isnan(be),
                         msg="annual_break_even_selling_price should be NaN "
                             "when sellable energy is zero")
@@ -121,7 +119,7 @@ class TestAnnualBreakEvenSellingPriceIndependence(unittest.TestCase):
             economics=b2u.EconomicAssumptions(warranty_fraction_of_revenue=1.0)
         )
         result = b2u.run_b2u_scenario(module, scenario).to_dict()
-        be = result["unit_economics"]["annual_break_even_selling_price_usd_per_kwh"]
+        be = result["unit_economics"]["annual_break_even_selling_price_per_kwh"]
         self.assertTrue(math.isnan(be),
                         msg="annual_break_even_selling_price should be NaN "
                             "when warranty_fraction >= 1")
@@ -131,8 +129,8 @@ class TestAnnualBreakEvenSellingPriceIndependence(unittest.TestCase):
         result = b2u.run_b2u_scenario(module, scenario).to_dict()
         unit_economics = result["unit_economics"]
         self.assertAlmostEqual(
-            unit_economics["break_even_selling_price_usd_per_kwh"],
-            unit_economics["annual_break_even_selling_price_usd_per_kwh"],
+            unit_economics["break_even_selling_price_per_kwh"],
+            unit_economics["annual_break_even_selling_price_per_kwh"],
             msg="Legacy break_even_selling_price field must not keep the old circular value",
         )
 
@@ -144,7 +142,7 @@ class TestNpvBreakEvenSellingPriceSolver(unittest.TestCase):
         from dataclasses import replace
         economics = replace(
             scenario.economics,
-            forced_selling_price_usd_per_kwh=price_per_kwh,
+            forced_selling_price_per_kwh=price_per_kwh,
         )
         s = replace(scenario, economics=economics)
         result = b2u.run_b2u_scenario(component, s).to_dict()
@@ -152,7 +150,7 @@ class TestNpvBreakEvenSellingPriceSolver(unittest.TestCase):
         return float(
             result["revenue_npv"].get(
                 f"total_npv_{currency}",
-                result["revenue_npv"]["total_npv_usd"],
+                result["revenue_npv"]["total_npv"],
             )
         )
 
@@ -254,34 +252,21 @@ class TestLeafBaseCasePositiveSellableEnergy(unittest.TestCase):
         )
 
 
-class TestNorwayPlotNokConversion(unittest.TestCase):
-    """Norway plot x-values for USD price parameters should be converted to NOK."""
+class TestNorwayPlotScenarioCurrency(unittest.TestCase):
+    """Norway plot x-values are stored in NOK by the sensitivity script."""
 
-    def test_selling_price_parameter_is_usd_price_parameter(self):
-        self.assertIn("selling_price_usd_per_kwh", _USD_PRICE_PARAMETERS)
-
-    def test_purchase_price_parameter_is_usd_price_parameter(self):
-        self.assertIn("purchase_price_usd_per_kwh_nameplate", _USD_PRICE_PARAMETERS)
-
-    def test_convert_parameter_value_to_nok_selling_price(self):
-        usd_value = 100.0
-        nok_value = _convert_parameter_value_to_nok(
-            "selling_price_usd_per_kwh", usd_value, NOK_PER_USD
+    def test_display_parameter_value_preserves_scenario_currency_value(self):
+        value = 100.0
+        self.assertAlmostEqual(
+            _display_parameter_value("selling_price_per_kwh", value),
+            value,
+            msg="Plotting should not apply a hidden currency conversion",
         )
-        self.assertAlmostEqual(nok_value, usd_value * NOK_PER_USD)
-
-    def test_convert_parameter_value_to_nok_purchase_price(self):
-        usd_value = 50.0
-        nok_value = _convert_parameter_value_to_nok(
-            "purchase_price_usd_per_kwh_nameplate", usd_value, NOK_PER_USD
-        )
-        self.assertAlmostEqual(nok_value, usd_value * NOK_PER_USD)
 
     def test_non_price_parameter_is_not_converted(self):
         value = 0.04
-        converted = _convert_parameter_value_to_nok("discount_rate", value, NOK_PER_USD)
-        self.assertAlmostEqual(converted, value,
-                               msg="Non-price parameters should not be converted")
+        converted = _display_parameter_value("discount_rate", value)
+        self.assertAlmostEqual(converted, value)
 
     def test_tornado_metric_labels_include_nok_units(self):
         self.assertEqual(_METRIC_LABELS["npv"], "NPV [MNOK]")
@@ -296,7 +281,7 @@ class TestSellingPriceExclusionFromBreakEvenTornados(unittest.TestCase):
             "annual_break_even_selling_price_per_kwh",
             _BREAK_EVEN_SELLING_PRICE_METRICS,
             msg="annual_break_even_selling_price_per_kwh must be in the exclusion set "
-                "so that selling_price_usd_per_kwh is excluded from its tornado plot",
+                "so that selling_price_per_kwh is excluded from its tornado plot",
         )
 
     def test_break_even_metric_triggers_selling_price_exclusion(self):
@@ -304,7 +289,7 @@ class TestSellingPriceExclusionFromBreakEvenTornados(unittest.TestCase):
             "break_even_selling_price_per_kwh",
             _BREAK_EVEN_SELLING_PRICE_METRICS,
             msg="break_even_selling_price_per_kwh must be in the exclusion set "
-                "so that selling_price_usd_per_kwh is excluded from its tornado plot",
+                "so that selling_price_per_kwh is excluded from its tornado plot",
         )
 
     def test_npv_break_even_metric_triggers_selling_price_exclusion(self):
@@ -312,7 +297,7 @@ class TestSellingPriceExclusionFromBreakEvenTornados(unittest.TestCase):
             "npv_break_even_selling_price_per_kwh",
             _BREAK_EVEN_SELLING_PRICE_METRICS,
             msg="npv_break_even_selling_price_per_kwh must be in the exclusion set "
-                "so that selling_price_usd_per_kwh is excluded from its tornado plot",
+                "so that selling_price_per_kwh is excluded from its tornado plot",
         )
 
     def test_npv_metric_does_not_trigger_selling_price_exclusion(self):
@@ -320,7 +305,7 @@ class TestSellingPriceExclusionFromBreakEvenTornados(unittest.TestCase):
             "npv",
             _BREAK_EVEN_SELLING_PRICE_METRICS,
             msg="npv must NOT be in the exclusion set; "
-                "selling_price_usd_per_kwh should appear in NPV tornado plots",
+                "selling_price_per_kwh should appear in NPV tornado plots",
         )
 
 

@@ -13,7 +13,7 @@ class TestNRELReferenceCase(unittest.TestCase):
         scenario = make_nrel_reference_scenario()
 
         result = b2u.run_b2u_scenario(component, scenario).to_dict()
-        npv = result["revenue_npv"]["total_npv_usd"]
+        npv = result["revenue_npv"]["total_npv"]
 
         # The NREL spreadsheet reference case is interpreted as a break-even
         # benchmark, not as an independent market forecast. Allow a small

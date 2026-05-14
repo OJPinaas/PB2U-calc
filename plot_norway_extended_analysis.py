@@ -40,7 +40,7 @@ plt.rcParams.update({
     "figure.constrained_layout.use": True,
 })
 
-# Metrics for which selling_price_usd_per_kwh must be excluded from tornado
+# Metrics for which selling_price_per_kwh must be excluded from tornado
 # charts because the plotted metric IS a break-even selling price.
 _BREAK_EVEN_SELLING_PRICE_METRICS = {
     "annual_break_even_selling_price_per_kwh",
@@ -48,20 +48,17 @@ _BREAK_EVEN_SELLING_PRICE_METRICS = {
     "npv_break_even_selling_price_per_kwh",
 }
 
-# Parameters whose sensitivity-sweep values are stored in USD but should be
-# displayed in NOK on Norway plots.
-_USD_PRICE_PARAMETERS = {
-    "selling_price_usd_per_kwh",
-    "purchase_price_usd_per_kwh_nameplate",
-}
+# Sensitivity CSV values are already stored in the scenario currency. For the
+# Norwegian thesis figures this means NOK, so no plot-time currency conversion
+# is needed.
 
 _PARAM_LABELS = {
     "cell_fault_rate": "Cell fault rate",
     "cell_soh_mean": "Mean cell SoH",
     "cell_soh_std": "Cell SoH std.",
     "min_remaining_energy_fraction": "Acceptance threshold",
-    "purchase_price_usd_per_kwh_nameplate": "Purchase price [NOK/kWh-nameplate]",
-    "selling_price_usd_per_kwh": "Selling price [NOK/kWh]",
+    "purchase_price_per_kwh_nameplate": "Purchase price [NOK/kWh-nameplate]",
+    "selling_price_per_kwh": "Selling price [NOK/kWh]",
     "discount_rate": "Discount rate",
 }
 
@@ -87,8 +84,8 @@ _BASE_PARAMETER_VALUES = {
         "cell_soh_mean": 0.64,
         "cell_soh_std": 0.04,
         "min_remaining_energy_fraction": 0.55,
-        "purchase_price_usd_per_kwh_nameplate": 36.0,
-        "selling_price_usd_per_kwh": 1600.0 / 9.32,
+        "purchase_price_per_kwh_nameplate": 36.0,
+        "selling_price_per_kwh": 1600.0,
         "discount_rate": 0.10,
     },
     "leaf_pack": {
@@ -96,8 +93,8 @@ _BASE_PARAMETER_VALUES = {
         "cell_soh_mean": 0.64,
         "cell_soh_std": 0.04,
         "min_remaining_energy_fraction": 0.55,
-        "purchase_price_usd_per_kwh_nameplate": 36.0,
-        "selling_price_usd_per_kwh": 1600.0 / 9.32,
+        "purchase_price_per_kwh_nameplate": 36.0,
+        "selling_price_per_kwh": 1600.0,
         "discount_rate": 0.10,
     },
     "tesla": {
@@ -105,8 +102,8 @@ _BASE_PARAMETER_VALUES = {
         "cell_soh_mean": 0.80,
         "cell_soh_std": 0.04,
         "min_remaining_energy_fraction": 0.55,
-        "purchase_price_usd_per_kwh_nameplate": 230.0 / 5.3,
-        "selling_price_usd_per_kwh": 1400.0 / 9.32,
+        "purchase_price_per_kwh_nameplate": 230.0 / 5.3,
+        "selling_price_per_kwh": 1400.0,
         "discount_rate": 0.10,
     },
 }
@@ -126,23 +123,8 @@ def _style_legend(ax: plt.Axes, *, loc: str | None = None) -> None:
     ax.legend(**kwargs)
 
 
-def _nok_per_usd_from_df(df: pd.DataFrame) -> float:
-    """Return the NOK/USD conversion rate stored in the sensitivity CSV."""
-    if "nok_per_usd" in df.columns:
-        vals = df["nok_per_usd"].dropna()
-        if not vals.empty:
-            return float(vals.iloc[0])
-    return 9.32
-
-
-def _convert_parameter_value_to_nok(
-    parameter: str,
-    value: float,
-    nok_per_usd: float,
-) -> float:
-    """Convert a parameter value to NOK if it is stored in USD."""
-    if parameter in _USD_PRICE_PARAMETERS:
-        return value * nok_per_usd
+def _display_parameter_value(parameter: str, value: float) -> float:
+    """Return parameter values as stored in the scenario-currency CSV."""
     return value
 
 
@@ -345,7 +327,7 @@ def plot_sensitivity_tornado(metric: str = "npv") -> None:
 
     exclude_params = set()
     if metric in _BREAK_EVEN_SELLING_PRICE_METRICS:
-        exclude_params.add("selling_price_usd_per_kwh")
+        exclude_params.add("selling_price_per_kwh")
 
     for component in sorted(df["component"].unique()):
         sub_component = df[df["component"] == component]
@@ -425,12 +407,11 @@ def plot_npv_vs_selling_price() -> None:
         return
 
     df = pd.read_csv(path)
-    df_sp = df[df["parameter"] == "selling_price_usd_per_kwh"].copy()
+    df_sp = df[df["parameter"] == "selling_price_per_kwh"].copy()
     if df_sp.empty:
         return
 
-    nok_per_usd = _nok_per_usd_from_df(df)
-    df_sp["selling_price_nok"] = df_sp["value"] * nok_per_usd
+    df_sp["selling_price_nok"] = df_sp["value"]
 
     components = sorted(df_sp["component"].unique())
     colors = cm.viridis([i / max(1, len(components) - 1) for i in range(len(components))])
@@ -461,12 +442,11 @@ def plot_purchase_price_feasibility() -> None:
         return
 
     df = pd.read_csv(path)
-    df_pp = df[df["parameter"] == "purchase_price_usd_per_kwh_nameplate"].copy()
+    df_pp = df[df["parameter"] == "purchase_price_per_kwh_nameplate"].copy()
     if df_pp.empty:
         return
 
-    nok_per_usd = _nok_per_usd_from_df(df)
-    df_pp["purchase_price_nok"] = df_pp["value"] * nok_per_usd
+    df_pp["purchase_price_nok"] = df_pp["value"]
 
     components = sorted(df_pp["component"].unique())
     colors = cm.viridis([i / max(1, len(components) - 1) for i in range(len(components))])

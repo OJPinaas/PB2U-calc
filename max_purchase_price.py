@@ -99,7 +99,7 @@ def _total_npv(component: Component, scenario: b2u.B2UScenario) -> float:
     result = b2u.run_b2u_scenario(component, scenario).to_dict()
     currency = result["currency"].get("currency", "USD").lower()
     revenue_npv = result["revenue_npv"]
-    return float(revenue_npv.get(f"total_npv_{currency}", revenue_npv["total_npv_usd"]))
+    return float(revenue_npv.get(f"total_npv_{currency}", revenue_npv["total_npv"]))
 
 
 def solve_max_purchase_price(
@@ -162,8 +162,8 @@ def _get_current_selling_price_per_kwh(
     scenario: b2u.B2UScenario,
 ) -> float:
     """Return the effective selling price per kWh for the given component/scenario."""
-    if scenario.economics.forced_selling_price_usd_per_kwh is not None:
-        return float(scenario.economics.forced_selling_price_usd_per_kwh)
+    if scenario.economics.forced_selling_price_per_kwh is not None:
+        return float(scenario.economics.forced_selling_price_per_kwh)
     if isinstance(component, Batterymodule):
         return float(component.forced_selling_price_per_kWh)
     return float(component.modules[0][0].forced_selling_price_per_kWh)
@@ -173,10 +173,10 @@ def _scenario_with_selling_price(
     scenario: b2u.B2UScenario,
     selling_price_per_kwh: float,
 ) -> b2u.B2UScenario:
-    """Return a scenario clone with forced_selling_price_usd_per_kwh set."""
+    """Return a scenario clone with forced_selling_price_per_kwh set."""
     economics = replace(
         scenario.economics,
-        forced_selling_price_usd_per_kwh=selling_price_per_kwh,
+        forced_selling_price_per_kwh=selling_price_per_kwh,
     )
     return replace(scenario, economics=economics)
 

@@ -138,7 +138,7 @@ class TestPurchasePricePropagation(unittest.TestCase):
         result = b2u.run_b2u_model(module)
         expected = 100.0 / 5.0
         self.assertAlmostEqual(
-            result.purchase_price.purchase_price_usd_per_kwh_nameplate,
+            result.purchase_price.purchase_price_per_kwh_nameplate,
             expected,
         )
 
@@ -170,8 +170,8 @@ class TestPurchasePricePropagation(unittest.TestCase):
         base_result = b2u.run_b2u_model(base_module)
         costly_result = b2u.run_b2u_model(costly_module)
         self.assertGreater(
-            costly_result.annual_expenses.total_annual_expenses_usd,
-            base_result.annual_expenses.total_annual_expenses_usd,
+            costly_result.annual_expenses.total_annual_expenses,
+            base_result.annual_expenses.total_annual_expenses,
         )
 
 

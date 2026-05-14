@@ -63,7 +63,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.45,
             "max_cell_soh": 0.95,
             "cell_fault_rate": 5e-5,
-            "purchase_price_usd": 18.0,
+            "purchase_price_reference_usd": 18.0,
         },
         "tesla": {
             "percent_remaining_energy": 0.80,
@@ -71,7 +71,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.55,
             "max_cell_soh": 0.98,
             "cell_fault_rate": 5e-5,
-            "purchase_price_usd": 230.0,
+            "purchase_price_reference_usd": 230.0,
         },
     },
     "conservative": {
@@ -81,7 +81,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.35,
             "max_cell_soh": 0.95,
             "cell_fault_rate": 2e-4,
-            "purchase_price_usd": 25.0,
+            "purchase_price_reference_usd": 25.0,
         },
         "tesla": {
             "percent_remaining_energy": 0.74,
@@ -89,7 +89,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.45,
             "max_cell_soh": 0.98,
             "cell_fault_rate": 2e-4,
-            "purchase_price_usd": 280.0,
+            "purchase_price_reference_usd": 280.0,
         },
     },
     "optimistic": {
@@ -99,7 +99,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.50,
             "max_cell_soh": 0.98,
             "cell_fault_rate": 1e-5,
-            "purchase_price_usd": 12.0,
+            "purchase_price_reference_usd": 12.0,
         },
         "tesla": {
             "percent_remaining_energy": 0.86,
@@ -107,7 +107,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.60,
             "max_cell_soh": 0.99,
             "cell_fault_rate": 1e-5,
-            "purchase_price_usd": 170.0,
+            "purchase_price_reference_usd": 170.0,
         },
     },
     "high_failure": {
@@ -117,7 +117,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.35,
             "max_cell_soh": 0.95,
             "cell_fault_rate": 1e-3,
-            "purchase_price_usd": 18.0,
+            "purchase_price_reference_usd": 18.0,
         },
         "tesla": {
             "percent_remaining_energy": 0.80,
@@ -125,7 +125,7 @@ MODULE_PRESETS = {
             "min_cell_soh": 0.45,
             "max_cell_soh": 0.98,
             "cell_fault_rate": 1e-3,
-            "purchase_price_usd": 230.0,
+            "purchase_price_reference_usd": 230.0,
         },
     },
 }
@@ -137,32 +137,32 @@ SCENARIO_PRESETS = {
             "design_utilization": 0.90,
         },
         "capital": {
-            "storage_rack_cost_usd": 120.0,
-            "forklift_cost_usd": 18000.0,
-            "workstation_cost_usd": 800.0,
-            "office_and_other_cost_usd": 150000.0,
-            "shipping_container_cost_usd": 3200.0,
+            "storage_rack_cost": 120.0,
+            "forklift_cost": 18000.0,
+            "workstation_cost": 800.0,
+            "office_and_other_cost": 150000.0,
+            "shipping_container_cost": 3200.0,
         },
         "wages": {
-            "technician_usd_per_year": 93000.0,
-            "forklift_operator_usd_per_year": 61700.0,
-            "truck_driver_usd_per_year": 63000.0,
-            "supervisor_usd_per_year": 95000.0,
-            "chief_executive_usd_per_year": 260000.0,
-            "electrical_engineer_usd_per_year": 100000.0,
-            "sales_manager_usd_per_year": 100000.0,
-            "admin_assistant_usd_per_year": 60000.0,
-            "security_guard_usd_per_year": 54000.0,
-            "hr_manager_usd_per_year": 105000.0,
-            "operations_manager_usd_per_year": 120000.0,
-            "janitor_usd_per_year": 52000.0,
+            "technician_wage_per_year": 93000.0,
+            "forklift_operator_wage_per_year": 61700.0,
+            "truck_driver_wage_per_year": 63000.0,
+            "supervisor_wage_per_year": 95000.0,
+            "chief_executive_wage_per_year": 260000.0,
+            "electrical_engineer_wage_per_year": 100000.0,
+            "sales_manager_wage_per_year": 100000.0,
+            "admin_assistant_wage_per_year": 60000.0,
+            "security_guard_wage_per_year": 54000.0,
+            "hr_manager_wage_per_year": 105000.0,
+            "operations_manager_wage_per_year": 120000.0,
+            "janitor_wage_per_year": 52000.0,
             "non_wage_compensation_fraction": 0.30,
         },
         "economics": {
             "discount_rate": NORWAY_DISCOUNT_RATE,
-            "electricity_testing_usd_per_kwh": 0.10,
-            "hvac_lighting_usd_per_m2_year": 12.0,
-            "rent_usd_per_m2_year": 170.0,
+            "electricity_testing_cost_per_kwh": 0.10,
+            "hvac_lighting_cost_per_m2_year": 12.0,
+            "rent_per_m2_year": 170.0,
             "other_direct_cost_fraction_of_wages": 0.02,
             "insurance_fraction_of_direct_costs": 0.025,
             "warranty_fraction_of_revenue": 0.04,
@@ -181,7 +181,7 @@ SCENARIO_PRESETS = {
             "seed": 20260429,
             "min_remaining_energy_fraction": 0.55,
         },
-        "road_freight_usd_per_km": 1.25,
+        "road_freight_reference_usd_per_km": 1.25,
     },
     "conservative": {
         "facility": {
@@ -189,32 +189,32 @@ SCENARIO_PRESETS = {
             "design_utilization": 0.85,
         },
         "capital": {
-            "storage_rack_cost_usd": 130.0,
-            "forklift_cost_usd": 20000.0,
-            "workstation_cost_usd": 900.0,
-            "office_and_other_cost_usd": 170000.0,
-            "shipping_container_cost_usd": 3800.0,
+            "storage_rack_cost": 130.0,
+            "forklift_cost": 20000.0,
+            "workstation_cost": 900.0,
+            "office_and_other_cost": 170000.0,
+            "shipping_container_cost": 3800.0,
         },
         "wages": {
-            "technician_usd_per_year": 98000.0,
-            "forklift_operator_usd_per_year": 65000.0,
-            "truck_driver_usd_per_year": 67000.0,
-            "supervisor_usd_per_year": 102000.0,
-            "chief_executive_usd_per_year": 280000.0,
-            "electrical_engineer_usd_per_year": 107000.0,
-            "sales_manager_usd_per_year": 107000.0,
-            "admin_assistant_usd_per_year": 63000.0,
-            "security_guard_usd_per_year": 56000.0,
-            "hr_manager_usd_per_year": 112000.0,
-            "operations_manager_usd_per_year": 128000.0,
-            "janitor_usd_per_year": 54000.0,
+            "technician_wage_per_year": 98000.0,
+            "forklift_operator_wage_per_year": 65000.0,
+            "truck_driver_wage_per_year": 67000.0,
+            "supervisor_wage_per_year": 102000.0,
+            "chief_executive_wage_per_year": 280000.0,
+            "electrical_engineer_wage_per_year": 107000.0,
+            "sales_manager_wage_per_year": 107000.0,
+            "admin_assistant_wage_per_year": 63000.0,
+            "security_guard_wage_per_year": 56000.0,
+            "hr_manager_wage_per_year": 112000.0,
+            "operations_manager_wage_per_year": 128000.0,
+            "janitor_wage_per_year": 54000.0,
             "non_wage_compensation_fraction": 0.32,
         },
         "economics": {
             "discount_rate": NORWAY_DISCOUNT_RATE,
-            "electricity_testing_usd_per_kwh": 0.13,
-            "hvac_lighting_usd_per_m2_year": 16.0,
-            "rent_usd_per_m2_year": 215.0,
+            "electricity_testing_cost_per_kwh": 0.13,
+            "hvac_lighting_cost_per_m2_year": 16.0,
+            "rent_per_m2_year": 215.0,
             "other_direct_cost_fraction_of_wages": 0.025,
             "insurance_fraction_of_direct_costs": 0.03,
             "warranty_fraction_of_revenue": 0.05,
@@ -233,7 +233,7 @@ SCENARIO_PRESETS = {
             "seed": 20260430,
             "min_remaining_energy_fraction": 0.65,
         },
-        "road_freight_usd_per_km": 1.45,
+        "road_freight_reference_usd_per_km": 1.45,
     },
     "optimistic": {
         "facility": {
@@ -241,32 +241,32 @@ SCENARIO_PRESETS = {
             "design_utilization": 0.92,
         },
         "capital": {
-            "storage_rack_cost_usd": 110.0,
-            "forklift_cost_usd": 16000.0,
-            "workstation_cost_usd": 750.0,
-            "office_and_other_cost_usd": 130000.0,
-            "shipping_container_cost_usd": 2600.0,
+            "storage_rack_cost": 110.0,
+            "forklift_cost": 16000.0,
+            "workstation_cost": 750.0,
+            "office_and_other_cost": 130000.0,
+            "shipping_container_cost": 2600.0,
         },
         "wages": {
-            "technician_usd_per_year": 88000.0,
-            "forklift_operator_usd_per_year": 58000.0,
-            "truck_driver_usd_per_year": 60000.0,
-            "supervisor_usd_per_year": 90000.0,
-            "chief_executive_usd_per_year": 245000.0,
-            "electrical_engineer_usd_per_year": 96000.0,
-            "sales_manager_usd_per_year": 96000.0,
-            "admin_assistant_usd_per_year": 57000.0,
-            "security_guard_usd_per_year": 52000.0,
-            "hr_manager_usd_per_year": 100000.0,
-            "operations_manager_usd_per_year": 115000.0,
-            "janitor_usd_per_year": 50000.0,
+            "technician_wage_per_year": 88000.0,
+            "forklift_operator_wage_per_year": 58000.0,
+            "truck_driver_wage_per_year": 60000.0,
+            "supervisor_wage_per_year": 90000.0,
+            "chief_executive_wage_per_year": 245000.0,
+            "electrical_engineer_wage_per_year": 96000.0,
+            "sales_manager_wage_per_year": 96000.0,
+            "admin_assistant_wage_per_year": 57000.0,
+            "security_guard_wage_per_year": 52000.0,
+            "hr_manager_wage_per_year": 100000.0,
+            "operations_manager_wage_per_year": 115000.0,
+            "janitor_wage_per_year": 50000.0,
             "non_wage_compensation_fraction": 0.28,
         },
         "economics": {
             "discount_rate": NORWAY_DISCOUNT_RATE,
-            "electricity_testing_usd_per_kwh": 0.08,
-            "hvac_lighting_usd_per_m2_year": 8.0,
-            "rent_usd_per_m2_year": 145.0,
+            "electricity_testing_cost_per_kwh": 0.08,
+            "hvac_lighting_cost_per_m2_year": 8.0,
+            "rent_per_m2_year": 145.0,
             "other_direct_cost_fraction_of_wages": 0.02,
             "insurance_fraction_of_direct_costs": 0.02,
             "warranty_fraction_of_revenue": 0.03,
@@ -285,7 +285,7 @@ SCENARIO_PRESETS = {
             "seed": 20260502,
             "min_remaining_energy_fraction": 0.55,
         },
-        "road_freight_usd_per_km": 1.10,
+        "road_freight_reference_usd_per_km": 1.10,
     },
     "high_failure": {
         "facility": {
@@ -293,32 +293,32 @@ SCENARIO_PRESETS = {
             "design_utilization": 0.88,
         },
         "capital": {
-            "storage_rack_cost_usd": 120.0,
-            "forklift_cost_usd": 18000.0,
-            "workstation_cost_usd": 800.0,
-            "office_and_other_cost_usd": 160000.0,
-            "shipping_container_cost_usd": 3200.0,
+            "storage_rack_cost": 120.0,
+            "forklift_cost": 18000.0,
+            "workstation_cost": 800.0,
+            "office_and_other_cost": 160000.0,
+            "shipping_container_cost": 3200.0,
         },
         "wages": {
-            "technician_usd_per_year": 93000.0,
-            "forklift_operator_usd_per_year": 61700.0,
-            "truck_driver_usd_per_year": 63000.0,
-            "supervisor_usd_per_year": 95000.0,
-            "chief_executive_usd_per_year": 260000.0,
-            "electrical_engineer_usd_per_year": 100000.0,
-            "sales_manager_usd_per_year": 100000.0,
-            "admin_assistant_usd_per_year": 60000.0,
-            "security_guard_usd_per_year": 54000.0,
-            "hr_manager_usd_per_year": 105000.0,
-            "operations_manager_usd_per_year": 120000.0,
-            "janitor_usd_per_year": 52000.0,
+            "technician_wage_per_year": 93000.0,
+            "forklift_operator_wage_per_year": 61700.0,
+            "truck_driver_wage_per_year": 63000.0,
+            "supervisor_wage_per_year": 95000.0,
+            "chief_executive_wage_per_year": 260000.0,
+            "electrical_engineer_wage_per_year": 100000.0,
+            "sales_manager_wage_per_year": 100000.0,
+            "admin_assistant_wage_per_year": 60000.0,
+            "security_guard_wage_per_year": 54000.0,
+            "hr_manager_wage_per_year": 105000.0,
+            "operations_manager_wage_per_year": 120000.0,
+            "janitor_wage_per_year": 52000.0,
             "non_wage_compensation_fraction": 0.30,
         },
         "economics": {
             "discount_rate": NORWAY_DISCOUNT_RATE,
-            "electricity_testing_usd_per_kwh": 0.10,
-            "hvac_lighting_usd_per_m2_year": 12.0,
-            "rent_usd_per_m2_year": 170.0,
+            "electricity_testing_cost_per_kwh": 0.10,
+            "hvac_lighting_cost_per_m2_year": 12.0,
+            "rent_per_m2_year": 170.0,
             "other_direct_cost_fraction_of_wages": 0.02,
             "insurance_fraction_of_direct_costs": 0.03,
             "warranty_fraction_of_revenue": 0.06,
@@ -337,12 +337,12 @@ SCENARIO_PRESETS = {
             "seed": 20260503,
             "min_remaining_energy_fraction": 0.60,
         },
-        "road_freight_usd_per_km": 1.35,
+        "road_freight_reference_usd_per_km": 1.35,
     },
 }
 
 
-def _monetary_kwargs_usd_to_nok(values: dict[str, float]) -> dict[str, float]:
+def _reference_usd_values_to_nok(values: dict[str, float]) -> dict[str, float]:
     converted = {}
     for key, value in values.items():
         if key == "non_wage_compensation_fraction":
@@ -352,18 +352,16 @@ def _monetary_kwargs_usd_to_nok(values: dict[str, float]) -> dict[str, float]:
     return converted
 
 
-def _economic_kwargs_usd_to_nok(values: dict[str, float | None]) -> dict[str, float | None]:
-    """Convert only monetary economic fields from USD to NOK.
+def _economic_reference_usd_values_to_nok(values: dict[str, float | None]) -> dict[str, float | None]:
+    """Convert monetary economic reference values from USD to NOK.
 
-    The B2U dataclass still uses historic ``*_usd`` field names, but Norway
-    scenarios are evaluated in NOK. Rate and fraction fields must not be
-    converted by the currency factor.
+    Rate and fraction fields must not be converted by the currency factor.
     """
     monetary_keys = {
-        "forced_selling_price_usd_per_kwh",
-        "electricity_testing_usd_per_kwh",
-        "hvac_lighting_usd_per_m2_year",
-        "rent_usd_per_m2_year",
+        "forced_selling_price_per_kwh",
+        "electricity_testing_cost_per_kwh",
+        "hvac_lighting_cost_per_m2_year",
+        "rent_per_m2_year",
     }
     converted = {}
     for key, value in values.items():
@@ -379,7 +377,7 @@ def make_leaf_gen1_module(scenario_name: str = "base") -> Batterymodule:
     return Batterymodule(
         nameplate_energy_kWh=0.5,
         weight_kg=3.8,
-        purchase_price=nok_from_usd(preset["purchase_price_usd"]),
+        purchase_price=nok_from_usd(preset["purchase_price_reference_usd"]),
         height_mm=35.0,
         width_mm=223.0,
         length_mm=303.0,
@@ -413,7 +411,7 @@ def set_component_selling_price(
 
 def make_leaf_gen1_module_from_pack_purchase(
     scenario_name: str = "base",
-    pack_purchase_price_usd_per_kwh: float | None = 12.0,
+    pack_purchase_price_reference_usd_per_kwh: float | None = 12.0,
     pack_purchase_price_nok_per_kwh: float | None = None,
 ) -> Batterymodule:
     """Create a Leaf module when the facility buys complete packs, not modules.
@@ -427,30 +425,30 @@ def make_leaf_gen1_module_from_pack_purchase(
     """
     module = make_leaf_gen1_module(scenario_name)
     if pack_purchase_price_nok_per_kwh is None:
-        if pack_purchase_price_usd_per_kwh is None:
+        if pack_purchase_price_reference_usd_per_kwh is None:
             raise ValueError(
-                "Specify either pack_purchase_price_usd_per_kwh or "
+                "Specify either pack_purchase_price_reference_usd_per_kwh or "
                 "pack_purchase_price_nok_per_kwh"
             )
-        pack_purchase_price_nok_per_kwh = nok_from_usd(pack_purchase_price_usd_per_kwh)
+        pack_purchase_price_nok_per_kwh = nok_from_usd(pack_purchase_price_reference_usd_per_kwh)
     module.purchase_price = pack_purchase_price_nok_per_kwh * module.nameplate_energy_kWh
     return module
 
 
 def make_leaf_gen1_pack_from_pack_purchase(
     scenario_name: str = "base",
-    pack_purchase_price_usd_per_kwh: float | None = 12.0,
+    pack_purchase_price_reference_usd_per_kwh: float | None = 12.0,
     pack_purchase_price_nok_per_kwh: float | None = None,
 ) -> pack:
     """Create a Leaf pack bought as a complete used pack at pack-level price."""
     component = make_leaf_gen1_pack(scenario_name)
     if pack_purchase_price_nok_per_kwh is None:
-        if pack_purchase_price_usd_per_kwh is None:
+        if pack_purchase_price_reference_usd_per_kwh is None:
             raise ValueError(
-                "Specify either pack_purchase_price_usd_per_kwh or "
+                "Specify either pack_purchase_price_reference_usd_per_kwh or "
                 "pack_purchase_price_nok_per_kwh"
             )
-        pack_purchase_price_nok_per_kwh = nok_from_usd(pack_purchase_price_usd_per_kwh)
+        pack_purchase_price_nok_per_kwh = nok_from_usd(pack_purchase_price_reference_usd_per_kwh)
     purchase_nok_per_kwh = pack_purchase_price_nok_per_kwh
     for module_string in component.modules:
         for module in module_string:
@@ -540,7 +538,7 @@ def _leaf_triage_reliability_summary(
 
 def make_leaf_pack_triage_pathway(
     scenario_name: str = "base",
-    pack_purchase_price_usd_per_kwh: float | None = 12.0,
+    pack_purchase_price_reference_usd_per_kwh: float | None = 12.0,
     pack_purchase_price_nok_per_kwh: float | None = None,
     pack_acceptance_threshold: float = 0.55,
     module_acceptance_threshold: float = 0.55,
@@ -559,7 +557,7 @@ def make_leaf_pack_triage_pathway(
     """
     component = make_leaf_gen1_pack_from_pack_purchase(
         scenario_name,
-        pack_purchase_price_usd_per_kwh=pack_purchase_price_usd_per_kwh,
+        pack_purchase_price_reference_usd_per_kwh=pack_purchase_price_reference_usd_per_kwh,
         pack_purchase_price_nok_per_kwh=pack_purchase_price_nok_per_kwh,
     )
     scenario = make_norway_scenario(scenario_name)
@@ -656,7 +654,7 @@ def make_tesla_model_s_gen1_module(scenario_name: str = "base") -> Batterymodule
     return Batterymodule(
         nameplate_energy_kWh=5.3,
         weight_kg=25.6,
-        purchase_price=nok_from_usd(preset["purchase_price_usd"]),
+        purchase_price=nok_from_usd(preset["purchase_price_reference_usd"]),
         height_mm=79.0,
         width_mm=300.0,
         length_mm=685.0,
@@ -679,17 +677,16 @@ def make_norway_scenario(scenario_name: str = "base") -> b2u.B2UScenario:
     facility = replace(base_facility, **preset["facility"])
 
     base_capital = b2u.CapitalCostAssumptions()
-    # The B2U dataclass field names retain the original ``*_usd`` suffixes,
-    # but Norwegian scenarios are evaluated in NOK. Convert the full default
-    # capital-cost set first, then apply scenario-specific NOK overrides.
-    # This prevents inherited B2U defaults, such as test-channel and computer
-    # costs, from leaking through as unconverted USD values.
-    capital_values = _monetary_kwargs_usd_to_nok(vars(base_capital))
-    capital_values.update(_monetary_kwargs_usd_to_nok(preset["capital"]))
+    # Convert the default B2U reference capital set first, then apply
+    # scenario-specific Norwegian overrides. This prevents inherited reference
+    # values, such as test-channel and computer costs, from leaking through as
+    # unconverted USD values in NOK scenarios.
+    capital_values = _reference_usd_values_to_nok(vars(base_capital))
+    capital_values.update(_reference_usd_values_to_nok(preset["capital"]))
     capital = b2u.CapitalCostAssumptions(**capital_values)
 
     wages = b2u.WageAssumptions(
-        **_monetary_kwargs_usd_to_nok(preset["wages"])
+        **_reference_usd_values_to_nok(preset["wages"])
     )
 
     base_economics = b2u.EconomicAssumptions(
@@ -698,7 +695,7 @@ def make_norway_scenario(scenario_name: str = "base") -> b2u.B2UScenario:
     )
     economics = replace(
         base_economics,
-        **_economic_kwargs_usd_to_nok(preset["economics"]),
+        **_economic_reference_usd_values_to_nok(preset["economics"]),
     )
 
     base_learning = b2u.LearningAssumptions()
@@ -722,10 +719,10 @@ def make_norway_scenario(scenario_name: str = "base") -> b2u.B2UScenario:
     transport_profile = b2u.TRANSPORT_PROFILES[collection_scale]
     road_freight = b2u.RoadFreightAssumptions(
         truck_operating_cost_per_m=nok_per_m_from_usd_per_km(
-            preset["road_freight_usd_per_km"]
+            preset["road_freight_reference_usd_per_km"]
         ),
         truck_purchase_cost=nok_from_usd(
-            transport_profile.truck_purchase_cost_usd
+            transport_profile.truck_purchase_cost
         ),
     )
 
@@ -795,5 +792,5 @@ if __name__ == "__main__":
         currency = output["currency"]["currency"]
         npv_key = f"total_npv_{currency.lower()}"
         print(f"Currency: {currency}")
-        print(f"NPV: {output['revenue_npv'].get(npv_key, output['revenue_npv']['total_npv_usd']):.0f}")
+        print(f"NPV: {output['revenue_npv'].get(npv_key, output['revenue_npv']['total_npv']):.0f}")
         print(json.dumps(output["reliability"], indent=2))

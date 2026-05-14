@@ -9,5 +9,5 @@ for label, component, scenario in iter_core_norway_cases():
     output = result.to_dict()
     print(f"\n=== {label} ===")
     print(f"Currency: {output['scenario']['currency']['currency']}")
-    print(f"Total NPV: {output['revenue_npv']['total_npv_usd']:.2f}")
+    print(f"Total NPV: {output['revenue_npv']['total_npv']:.2f}")
     print(json.dumps(output["reliability"], indent=2))

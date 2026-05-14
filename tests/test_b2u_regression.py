@@ -42,7 +42,7 @@ class TestB2URegressionInvariants(unittest.TestCase):
         result = b2u.run_b2u_model(self.module)
         expected = self.module.purchase_price / self.module.nameplate_energy_kWh
         self.assertAlmostEqual(
-            result.purchase_price.purchase_price_usd_per_kwh_nameplate,
+            result.purchase_price.purchase_price_per_kwh_nameplate,
             expected,
         )
 

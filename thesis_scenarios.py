@@ -127,13 +127,13 @@ def make_nrel_reference_scenario() -> b2u.B2UScenario:
         ),
         labor=nrel_labor,
         economics=b2u.EconomicAssumptions(
-            forced_selling_price_usd_per_kwh=None,
+            forced_selling_price_per_kwh=None,
             discount_rate=0.15,
             federal_tax_rate=0.393,
             state_tax_rate=0.0,
-            electricity_testing_usd_per_kwh=0.104,
-            hvac_lighting_usd_per_m2_year=2.27 / b2u.M2_PER_FT2,
-            rent_usd_per_m2_year=9.70 / b2u.M2_PER_FT2,
+            electricity_testing_cost_per_kwh=0.104,
+            hvac_lighting_cost_per_m2_year=2.27 / b2u.M2_PER_FT2,
+            rent_per_m2_year=9.70 / b2u.M2_PER_FT2,
             other_direct_cost_fraction_of_wages=0.02,
             insurance_fraction_of_direct_costs=0.03,
             ga_fraction_of_direct_costs=0.05,
@@ -156,15 +156,15 @@ def _is_valid_number(value) -> bool:
 
 
 def _currency_value(section: dict, key: str, currency: str):
-    currency_key = f"{key[:-4]}_{currency.lower()}" if key.endswith("_usd") else key
-    return section.get(currency_key, section.get(key))
+    """Return a value from a currency-neutral result section."""
+    return section.get(key)
 
 
 def make_norway_market_leaf_pack_case() -> tuple[str, pack, b2u.B2UScenario]:
     """Market case: buy complete Leaf packs at bulk intake price and sell tested packs."""
     component = make_leaf_gen1_pack_from_pack_purchase(
         "base",
-        pack_purchase_price_usd_per_kwh=None,
+        pack_purchase_price_reference_usd_per_kwh=None,
         pack_purchase_price_nok_per_kwh=LEAF_PACK_BULK_ACQUISITION_PRICE_NOK_PER_KWH,
     )
     set_component_selling_price(component, LEAF_PACK_MARKET_SELLING_PRICE_NOK_PER_KWH)
@@ -180,7 +180,7 @@ def make_norway_leaf_pack_to_modules_market_case() -> tuple[str, Batterymodule, 
     """
     component = make_leaf_gen1_module_from_pack_purchase(
         "base",
-        pack_purchase_price_usd_per_kwh=None,
+        pack_purchase_price_reference_usd_per_kwh=None,
         pack_purchase_price_nok_per_kwh=LEAF_PACK_TO_MODULES_ACQUISITION_PRICE_NOK_PER_KWH,
     )
     component.forced_selling_price_per_kWh = LEAF_MODULE_MARKET_SELLING_PRICE_NOK_PER_KWH
@@ -192,7 +192,7 @@ def make_norway_leaf_pack_triage_market_case() -> tuple[str, pack, b2u.B2UScenar
     """Market pathway: test Leaf packs first, recover modules from failures."""
     component, scenario = make_leaf_pack_triage_pathway(
         "base",
-        pack_purchase_price_usd_per_kwh=None,
+        pack_purchase_price_reference_usd_per_kwh=None,
         pack_purchase_price_nok_per_kwh=LEAF_PACK_TO_MODULES_ACQUISITION_PRICE_NOK_PER_KWH,
         pack_acceptance_threshold=0.55,
         module_acceptance_threshold=0.55,
@@ -220,7 +220,7 @@ def _calibrate_to_npv_zero(
     """Return a scenario with selling price calibrated so that NPV ≈ 0.
 
     Calls ``solve_npv_break_even_selling_price`` and sets
-    ``forced_selling_price_usd_per_kwh`` on the returned scenario.  If the
+    ``forced_selling_price_per_kwh`` on the returned scenario.  If the
     solver returns NaN the original scenario is returned unchanged.
     """
     solver_result = solve_npv_break_even_selling_price(component, scenario)
@@ -228,7 +228,7 @@ def _calibrate_to_npv_zero(
     if _is_valid_number(be_price) and be_price > 0:
         economics = replace(
             scenario.economics,
-            forced_selling_price_usd_per_kwh=be_price,
+            forced_selling_price_per_kwh=be_price,
         )
         return replace(scenario, economics=economics)
     return scenario
@@ -319,7 +319,7 @@ def make_feasibility_leaf_pack_to_modules_case() -> tuple[str, Batterymodule, b2
     """Feasibility pathway: buy complete Leaf packs and sell accepted modules."""
     component = make_leaf_gen1_module_from_pack_purchase(
         "base",
-        pack_purchase_price_usd_per_kwh=None,
+        pack_purchase_price_reference_usd_per_kwh=None,
         pack_purchase_price_nok_per_kwh=LEAF_FEASIBILITY_PACK_ACQUISITION_PRICE_NOK_PER_KWH,
     )
     component.forced_selling_price_per_kWh = LEAF_HIGH_VALUE_PRODUCT_SELLING_PRICE_NOK_PER_KWH
@@ -334,7 +334,7 @@ def make_feasibility_leaf_pack_triage_case() -> tuple[str, pack, b2u.B2UScenario
     """Feasibility pathway: pack-first screening plus module recovery."""
     component, scenario = make_leaf_pack_triage_pathway(
         "base",
-        pack_purchase_price_usd_per_kwh=None,
+        pack_purchase_price_reference_usd_per_kwh=None,
         pack_purchase_price_nok_per_kwh=LEAF_FEASIBILITY_PACK_ACQUISITION_PRICE_NOK_PER_KWH,
         pack_acceptance_threshold=0.55,
         module_acceptance_threshold=0.55,
@@ -470,10 +470,10 @@ def run_case(
         "calibration_target": metadata["calibration_target"],
         "scenario": scenario.name,
         "currency": currency,
-        "npv": _currency_value(revenue_npv, "total_npv_usd", currency),
+        "npv": _currency_value(revenue_npv, "total_npv", currency),
         "current_purchase_price_per_kwh_nameplate": _currency_value(
             purchase_price,
-            "purchase_price_usd_per_kwh_nameplate",
+            "purchase_price_per_kwh_nameplate",
             currency,
         ),
         "maximum_purchase_price_per_kwh_nameplate": (
@@ -487,12 +487,12 @@ def run_case(
         # the actual (input) selling price rather than the break-even price.
         "break_even_selling_price_per_kwh": _currency_value(
             unit_economics,
-            "annual_break_even_selling_price_usd_per_kwh",
+            "annual_break_even_selling_price_per_kwh",
             currency,
         ),
         "annual_break_even_selling_price_per_kwh": _currency_value(
             unit_economics,
-            "annual_break_even_selling_price_usd_per_kwh",
+            "annual_break_even_selling_price_per_kwh",
             currency,
         ),
         "npv_break_even_selling_price_per_kwh": (
@@ -500,12 +500,12 @@ def run_case(
         ),
         "revenue_per_sellable_kwh": _currency_value(
             unit_economics,
-            "revenue_usd_per_sellable_kwh",
+            "revenue_per_sellable_kwh",
             currency,
         ),
         "cost_per_sellable_kwh": _currency_value(
             unit_economics,
-            "cost_usd_per_sellable_kwh",
+            "cost_per_sellable_kwh",
             currency,
         ),
         "usable_fraction": result["reliability"]["usable_fraction"],

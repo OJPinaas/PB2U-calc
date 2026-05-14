@@ -53,8 +53,8 @@ SCALING_SEED = 20260602
 
 
 def _currency_value(section: dict, key: str, currency: str):
-    currency_key = f"{key[:-4]}_{currency.lower()}" if key.endswith("_usd") else key
-    return section.get(currency_key, section.get(key))
+    """Return a value from a currency-neutral result section."""
+    return section.get(key)
 
 
 def with_throughput(
@@ -178,7 +178,7 @@ def make_case(component_kind: str, variant: str) -> tuple[str, Component, b2u.B2
     elif component_kind == "leaf_pack_to_modules":
         component = make_leaf_gen1_module_from_pack_purchase(
             scenario_name,
-            pack_purchase_price_usd_per_kwh=None,
+            pack_purchase_price_reference_usd_per_kwh=None,
             pack_purchase_price_nok_per_kwh=LEAF_PACK_TO_MODULES_ACQUISITION_PRICE_NOK_PER_KWH,
         )
         component.forced_selling_price_per_kWh = LEAF_MODULE_MARKET_SELLING_PRICE_NOK_PER_KWH
@@ -186,7 +186,7 @@ def make_case(component_kind: str, variant: str) -> tuple[str, Component, b2u.B2
     elif component_kind == "leaf_pack_triage":
         component, scenario = make_leaf_pack_triage_pathway(
             scenario_name,
-            pack_purchase_price_usd_per_kwh=None,
+            pack_purchase_price_reference_usd_per_kwh=None,
             pack_purchase_price_nok_per_kwh=LEAF_PACK_TO_MODULES_ACQUISITION_PRICE_NOK_PER_KWH,
             pack_acceptance_threshold=0.60,
             module_acceptance_threshold=0.55,
@@ -228,7 +228,7 @@ def run_scaling_case(
         "target_annual_throughput_kwh": target_annual_throughput_kwh,
         "currency": currency,
         "nok_per_usd": NOK_PER_USD,
-        "npv": _currency_value(revenue_npv, "total_npv_usd", currency),
+        "npv": _currency_value(revenue_npv, "total_npv", currency),
         "actual_annual_throughput_kwh_year_1": throughput[
             "actual_annual_throughput_kwh"
         ],
@@ -238,16 +238,16 @@ def run_scaling_case(
             "mean_sellable_energy_kwh_per_unit"
         ],
         "cost_per_sellable_kwh": _currency_value(
-            unit_economics, "cost_usd_per_sellable_kwh", currency
+            unit_economics, "cost_per_sellable_kwh", currency
         ),
         "revenue_per_sellable_kwh": _currency_value(
-            unit_economics, "revenue_usd_per_sellable_kwh", currency
+            unit_economics, "revenue_per_sellable_kwh", currency
         ),
         "break_even_selling_price_per_kwh": _currency_value(
-            unit_economics, "annual_break_even_selling_price_usd_per_kwh", currency
+            unit_economics, "annual_break_even_selling_price_per_kwh", currency
         ),
         "annual_profit_before_discounting": _currency_value(
-            unit_economics, "annual_profit_before_discounting_usd", currency
+            unit_economics, "annual_profit_before_discounting", currency
         ),
     }
 
@@ -305,7 +305,7 @@ def throughput_unit_requirements(target_annual_throughput_kwh: float = 1_000_000
     # logic: many packs are sold whole, and only failed packs receive module tests.
     triage_component, triage_scenario = make_leaf_pack_triage_pathway(
         "base",
-        pack_purchase_price_usd_per_kwh=None,
+        pack_purchase_price_reference_usd_per_kwh=None,
         pack_purchase_price_nok_per_kwh=LEAF_PACK_TO_MODULES_ACQUISITION_PRICE_NOK_PER_KWH,
         pack_acceptance_threshold=0.55,
         module_acceptance_threshold=0.55,

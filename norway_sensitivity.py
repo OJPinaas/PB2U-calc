@@ -5,9 +5,8 @@ This script starts from the Norway base case and varies one parameter at a time.
 It includes Leaf modules, simplified Leaf Gen 1 packs, and Tesla Model S-style
 modules.
 
-All monetary inputs are expressed in the scenario currency. For Norway cases,
-this is NOK excluding VAT.  The B2U output keeps historical ``*_usd`` fields for
-compatibility and also adds currency-specific aliases such as ``total_npv_nok``.
+All monetary inputs and outputs are expressed in the scenario currency. For
+Norway cases, this is NOK excluding VAT.
 """
 
 from __future__ import annotations
@@ -45,10 +44,10 @@ DISCOUNT_RATE_RANGE = (0.06, 0.08, 0.10, 0.12, 0.15, 0.18)
 SENSITIVITY_SAMPLES = 1_000
 SENSITIVITY_SEED = 20260601
 
-LEAF_PURCHASE_PRICE_USD_PER_KWH_RANGE = (0.0, 10.0, 20.0, 40.0, 60.0, 80.0)
-TESLA_PURCHASE_PRICE_USD_PER_KWH_RANGE = (0.0, 15.0, 30.0, 45.0, 60.0, 90.0)
-LEAF_SELLING_PRICE_USD_PER_KWH_RANGE = (50.0, 75.0, 100.0, 150.0, 200.0, 250.0)
-TESLA_SELLING_PRICE_USD_PER_KWH_RANGE = (40.0, 55.0, 75.0, 100.0, 150.0, 200.0)
+LEAF_PURCHASE_PRICE_NOK_PER_KWH_RANGE = tuple(nok_from_usd(v) for v in (0.0, 10.0, 20.0, 40.0, 60.0, 80.0))
+TESLA_PURCHASE_PRICE_NOK_PER_KWH_RANGE = tuple(nok_from_usd(v) for v in (0.0, 15.0, 30.0, 45.0, 60.0, 90.0))
+LEAF_SELLING_PRICE_NOK_PER_KWH_RANGE = tuple(nok_from_usd(v) for v in (50.0, 75.0, 100.0, 150.0, 200.0, 250.0))
+TESLA_SELLING_PRICE_NOK_PER_KWH_RANGE = tuple(nok_from_usd(v) for v in (40.0, 55.0, 75.0, 100.0, 150.0, 200.0))
 
 Component = Batterymodule | pack
 
@@ -176,33 +175,33 @@ def sensitivity_cases(
         )
 
     purchase_range = (
-        TESLA_PURCHASE_PRICE_USD_PER_KWH_RANGE
+        TESLA_PURCHASE_PRICE_NOK_PER_KWH_RANGE
         if component_kind == "tesla"
-        else LEAF_PURCHASE_PRICE_USD_PER_KWH_RANGE
+        else LEAF_PURCHASE_PRICE_NOK_PER_KWH_RANGE
     )
     for value in purchase_range:
-        purchase_price_nok = nok_from_usd(value) * base_module.nameplate_energy_kWh
+        purchase_price = value * base_module.nameplate_energy_kWh
         yield (
             component_kind,
-            "purchase_price_usd_per_kwh_nameplate",
+            "purchase_price_per_kwh_nameplate",
             value,
-            clone_component(base_component, purchase_price=purchase_price_nok),
+            clone_component(base_component, purchase_price=purchase_price),
             base_scenario,
         )
 
     selling_range = (
-        TESLA_SELLING_PRICE_USD_PER_KWH_RANGE
+        TESLA_SELLING_PRICE_NOK_PER_KWH_RANGE
         if component_kind == "tesla"
-        else LEAF_SELLING_PRICE_USD_PER_KWH_RANGE
+        else LEAF_SELLING_PRICE_NOK_PER_KWH_RANGE
     )
     for value in selling_range:
         yield (
             component_kind,
-            "selling_price_usd_per_kwh",
+            "selling_price_per_kwh",
             value,
             clone_component(
                 base_component,
-                forced_selling_price_per_kWh=nok_from_usd(value),
+                forced_selling_price_per_kWh=value,
             ),
             base_scenario,
         )
@@ -218,8 +217,8 @@ def sensitivity_cases(
 
 
 def _currency_value(section: dict, key: str, currency: str):
-    currency_key = f"{key[:-4]}_{currency.lower()}" if key.endswith("_usd") else key
-    return section.get(currency_key, section.get(key))
+    """Return a monetary value from a v1.0 currency-neutral result section."""
+    return section.get(key)
 
 
 def run_sensitivity_case(
@@ -245,36 +244,36 @@ def run_sensitivity_case(
         "value": value,
         "currency": currency,
         "nok_per_usd": NOK_PER_USD,
-        "npv": _currency_value(revenue_npv, "total_npv_usd", currency),
+        "npv": _currency_value(revenue_npv, "total_npv", currency),
         "year_1_revenue": _currency_value(
-            revenue_npv["cashflows"][1], "revenue_usd", currency
+            revenue_npv["cashflows"][1], "revenue", currency
         ),
         "year_1_expenses": _currency_value(
-            revenue_npv["cashflows"][1], "expenses_usd", currency
+            revenue_npv["cashflows"][1], "expenses", currency
         ),
         "total_annual_expenses": _currency_value(
-            annual_expenses, "total_annual_expenses_usd", currency
+            annual_expenses, "total_annual_expenses", currency
         ),
         "cost_per_sellable_kwh": _currency_value(
-            unit_economics, "cost_usd_per_sellable_kwh", currency
+            unit_economics, "cost_per_sellable_kwh", currency
         ),
         "revenue_per_sellable_kwh": _currency_value(
-            unit_economics, "revenue_usd_per_sellable_kwh", currency
+            unit_economics, "revenue_per_sellable_kwh", currency
         ),
         "break_even_selling_price_per_kwh": _currency_value(
-            unit_economics, "annual_break_even_selling_price_usd_per_kwh", currency
+            unit_economics, "annual_break_even_selling_price_per_kwh", currency
         ),
         "annual_break_even_selling_price_per_kwh": _currency_value(
-            unit_economics, "annual_break_even_selling_price_usd_per_kwh", currency
+            unit_economics, "annual_break_even_selling_price_per_kwh", currency
         ),
         "npv_break_even_selling_price_per_kwh": (
             npv_be_solver.npv_break_even_selling_price_per_kwh
         ),
         "break_even_purchase_price_per_unit": _currency_value(
-            unit_economics, "break_even_purchase_price_usd_per_unit", currency
+            unit_economics, "break_even_purchase_price_per_unit", currency
         ),
         "annual_profit_before_discounting": _currency_value(
-            unit_economics, "annual_profit_before_discounting_usd", currency
+            unit_economics, "annual_profit_before_discounting", currency
         ),
         "actual_units_per_year": throughput["actual_units_per_year"],
         "actual_annual_throughput_kwh": throughput["actual_annual_throughput_kwh"],

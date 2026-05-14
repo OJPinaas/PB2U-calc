@@ -41,11 +41,11 @@ class TestNorwayScenarioAssumptions(unittest.TestCase):
     def test_monetary_economic_values_are_converted_to_nok(self):
         scenario = make_norway_scenario("base")
         self.assertAlmostEqual(
-            scenario.economics.electricity_testing_usd_per_kwh,
+            scenario.economics.electricity_testing_cost_per_kwh,
             0.10 * NOK_PER_USD,
         )
         self.assertAlmostEqual(
-            scenario.economics.rent_usd_per_m2_year,
+            scenario.economics.rent_per_m2_year,
             170.0 * NOK_PER_USD,
         )
 
@@ -55,23 +55,23 @@ class TestNorwayScenarioAssumptions(unittest.TestCase):
         b2u_defaults = b2u.CapitalCostAssumptions()
 
         self.assertAlmostEqual(
-            scenario.capital.test_channel_cost_usd_per_station,
-            b2u_defaults.test_channel_cost_usd_per_station * NOK_PER_USD,
+            scenario.capital.test_channel_cost_per_station,
+            b2u_defaults.test_channel_cost_per_station * NOK_PER_USD,
         )
         self.assertAlmostEqual(
-            scenario.capital.can_hardware_cost_usd_per_station,
-            b2u_defaults.can_hardware_cost_usd_per_station * NOK_PER_USD,
+            scenario.capital.can_hardware_cost_per_station,
+            b2u_defaults.can_hardware_cost_per_station * NOK_PER_USD,
         )
         self.assertAlmostEqual(
-            scenario.capital.computer_cost_usd,
-            b2u_defaults.computer_cost_usd * NOK_PER_USD,
+            scenario.capital.computer_cost,
+            b2u_defaults.computer_cost * NOK_PER_USD,
         )
         self.assertAlmostEqual(
-            scenario.capital.conveyor_cost_usd_per_m2,
-            b2u_defaults.conveyor_cost_usd_per_m2 * NOK_PER_USD,
+            scenario.capital.conveyor_cost_per_m2,
+            b2u_defaults.conveyor_cost_per_m2 * NOK_PER_USD,
         )
         self.assertAlmostEqual(
-            scenario.capital.storage_rack_cost_usd,
+            scenario.capital.storage_rack_cost,
             120.0 * NOK_PER_USD,
         )
 
@@ -81,7 +81,7 @@ class TestNorwayScenarioAssumptions(unittest.TestCase):
 
         self.assertAlmostEqual(
             scenario.road_freight.truck_purchase_cost,
-            regional_profile.truck_purchase_cost_usd * NOK_PER_USD,
+            regional_profile.truck_purchase_cost * NOK_PER_USD,
         )
         self.assertAlmostEqual(
             scenario.road_freight.truck_operating_cost_per_m,
@@ -115,12 +115,12 @@ class TestNorwayScenarioAssumptions(unittest.TestCase):
     def test_leaf_acquisition_and_resale_prices_are_separated(self):
         pack_component = make_leaf_gen1_pack_from_pack_purchase(
             "base",
-            pack_purchase_price_usd_per_kwh=None,
+            pack_purchase_price_reference_usd_per_kwh=None,
             pack_purchase_price_nok_per_kwh=LEAF_PACK_BULK_ACQUISITION_PRICE_NOK_PER_KWH,
         )
         module_component = make_leaf_gen1_module_from_pack_purchase(
             "base",
-            pack_purchase_price_usd_per_kwh=None,
+            pack_purchase_price_reference_usd_per_kwh=None,
             pack_purchase_price_nok_per_kwh=LEAF_PACK_TO_MODULES_ACQUISITION_PRICE_NOK_PER_KWH,
         )
 
@@ -144,7 +144,7 @@ class TestNorwayScenarioAssumptions(unittest.TestCase):
     def test_triage_uses_weighted_output_price_when_pack_and_module_prices_differ(self):
         component, scenario = make_leaf_pack_triage_pathway(
             "base",
-            pack_purchase_price_usd_per_kwh=None,
+            pack_purchase_price_reference_usd_per_kwh=None,
             pack_purchase_price_nok_per_kwh=LEAF_PACK_TO_MODULES_ACQUISITION_PRICE_NOK_PER_KWH,
             pack_acceptance_threshold=0.55,
             module_acceptance_threshold=0.55,
@@ -186,16 +186,13 @@ class TestCurrencyNeutralCalculation(unittest.TestCase):
         nok_result = b2u.run_b2u_scenario(module, nok).to_dict()
 
         self.assertAlmostEqual(
-            usd_result["revenue_npv"]["total_npv_usd"],
-            nok_result["revenue_npv"]["total_npv_usd"],
+            usd_result["revenue_npv"]["total_npv"],
+            nok_result["revenue_npv"]["total_npv"],
         )
-        self.assertIn("total_npv_nok", nok_result["revenue_npv"])
-        self.assertAlmostEqual(
-            nok_result["revenue_npv"]["total_npv_usd"],
-            nok_result["revenue_npv"]["total_npv_nok"],
-        )
+        self.assertNotIn("total_npv_nok", nok_result["revenue_npv"])
+        self.assertEqual(nok_result["currency"]["currency"], "NOK")
         self.assertIn("unit_economics", nok_result)
         self.assertIn(
-            "break_even_selling_price_nok_per_kwh",
+            "break_even_selling_price_per_kwh",
             nok_result["unit_economics"],
         )

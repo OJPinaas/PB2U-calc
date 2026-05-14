@@ -32,21 +32,21 @@ class TestB2UExecutionLeaf(unittest.TestCase):
         self.assertGreater(result.throughput.actual_units_per_year, 0)
         self.assertGreater(result.transportation.truck_unit_capacity, 0)
         self.assertGreater(result.facility_size.total_facility_area_m2, 0)
-        self.assertGreater(result.capital_costs.total_capital_cost_usd, 0)
-        self.assertGreater(result.annual_expenses.total_annual_expenses_usd, 0)
+        self.assertGreater(result.capital_costs.total_capital_cost, 0)
+        self.assertGreater(result.annual_expenses.total_annual_expenses, 0)
 
     def test_run_model_for_pack(self):
         result = b2u.run_b2u_model(self.pack)
         self.assertGreater(result.throughput.actual_units_per_year, 0)
         self.assertGreater(result.transportation.truck_unit_capacity, 0)
         self.assertGreater(result.facility_size.total_facility_area_m2, 0)
-        self.assertGreater(result.capital_costs.total_capital_cost_usd, 0)
-        self.assertGreater(result.annual_expenses.total_annual_expenses_usd, 0)
+        self.assertGreater(result.capital_costs.total_capital_cost, 0)
+        self.assertGreater(result.annual_expenses.total_annual_expenses, 0)
 
     def test_forced_selling_price_is_taken_from_component(self):
         result = b2u.run_b2u_model(self.module)
         expected = self.module.forced_selling_price_per_kWh * self.module.nameplate_energy_kWh
-        self.assertAlmostEqual(result.revenue_npv.selling_price_per_unit_usd, expected)
+        self.assertAlmostEqual(result.revenue_npv.selling_price_per_unit, expected)
 
     def test_actual_throughput_does_not_exceed_target(self):
         result = b2u.run_b2u_model(self.module)
@@ -79,7 +79,7 @@ class TestB2UExecutionTesla(unittest.TestCase):
         self.assertGreater(result.transportation.truck_unit_capacity, 0)
         self.assertGreater(result.transportation.units_per_shipping_pallet, 0)
         self.assertGreater(result.transportation.units_per_container, 0)
-        self.assertIsInstance(result.revenue_npv.total_npv_usd, float)
+        self.assertIsInstance(result.revenue_npv.total_npv, float)
 
     def test_actual_throughput_does_not_exceed_target(self):
         result = b2u.run_b2u_model(self.module)

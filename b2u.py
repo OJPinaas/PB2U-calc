@@ -14,37 +14,6 @@ SECONDS_PER_HOUR = 3600.0
 SECONDS_PER_MINUTE = 60.0
 
 
-def _currency_code(currency: "CurrencyAssumptions | None") -> str:
-    if currency is None:
-        return "USD"
-    return currency.currency.upper()
-
-
-def _with_currency_aliases(value: Any, currency_code: str) -> Any:
-    """Return a copy of ``value`` with currency-specific monetary aliases.
-
-    Existing keys ending in or containing ``_usd`` are preserved for backward
-    compatibility.  When the scenario currency is not USD, additional aliases
-    such as ``total_npv_nok`` or ``rent_nok_per_m2_year`` are added.  This keeps
-    old scripts working while making new scenario outputs semantically
-    currency-neutral.
-    """
-    if isinstance(value, list):
-        return [_with_currency_aliases(item, currency_code) for item in value]
-    if not isinstance(value, dict):
-        return value
-
-    output: Dict[str, Any] = {}
-    suffix = f"_{currency_code.lower()}"
-    for key, item in value.items():
-        converted_item = _with_currency_aliases(item, currency_code)
-        output[key] = converted_item
-        if currency_code.upper() != "USD" and "_usd" in key:
-            alias = key.replace("_usd", suffix)
-            if alias != key and alias not in output:
-                output[alias] = converted_item
-    return output
-
 
 def _ft_to_m(value_ft: float) -> float:
     return value_ft * M_PER_FT
@@ -54,8 +23,8 @@ def _mi_to_m(value_mi: float) -> float:
     return value_mi * M_PER_MI
 
 
-def _usd_per_mi_to_usd_per_m(value_usd_per_mi: float) -> float:
-    return value_usd_per_mi / M_PER_MI
+def _cost_per_mile_to_cost_per_m(value_per_mile: float) -> float:
+    return value_per_mile / M_PER_MI
 
 
 def _ft3_to_m3(value_ft3: float) -> float:
@@ -188,8 +157,8 @@ class TransportProfile:
     distance_m: float
     trip_time_s: float
     truck_type: str
-    truck_purchase_cost_usd: float
-    truck_operating_cost_usd_per_m: float
+    truck_purchase_cost: float
+    truck_operating_cost_per_m: float
     cargo_volume_m3: float
     cargo_mass_kg: float
 
@@ -317,43 +286,43 @@ class RoadFreightAssumptions:
 
 @dataclass(frozen=True)
 class CapitalCostAssumptions:
-    test_channel_cost_usd_per_station: float = 20_000.0
-    can_hardware_cost_usd_per_station: float = 160.0
-    computer_cost_usd: float = 3_000.0
-    conveyor_cost_usd_per_m2: float = 50.0 / M2_PER_FT2
-    storage_rack_cost_usd: float = 100.0
-    forklift_cost_usd: float = 7_000.0
-    workstation_cost_usd: float = 500.0
-    office_and_other_cost_usd: float = 100_000.0
-    shipping_container_cost_usd: float = 500.0
+    test_channel_cost_per_station: float = 20_000.0
+    can_hardware_cost_per_station: float = 160.0
+    computer_cost: float = 3_000.0
+    conveyor_cost_per_m2: float = 50.0 / M2_PER_FT2
+    storage_rack_cost: float = 100.0
+    forklift_cost: float = 7_000.0
+    workstation_cost: float = 500.0
+    office_and_other_cost: float = 100_000.0
+    shipping_container_cost: float = 500.0
 
 
 @dataclass(frozen=True)
 class WageAssumptions:
-    technician_usd_per_year: float = 37_860.0
-    forklift_operator_usd_per_year: float = 32_660.0
-    truck_driver_usd_per_year: float = 33_490.0
-    supervisor_usd_per_year: float = 58_150.0
-    chief_executive_usd_per_year: float = 178_400.0
-    electrical_engineer_usd_per_year: float = 93_380.0
-    sales_manager_usd_per_year: float = 85_610.0
-    admin_assistant_usd_per_year: float = 34_000.0
-    security_guard_usd_per_year: float = 27_550.0
-    hr_manager_usd_per_year: float = 100_800.0
-    operations_manager_usd_per_year: float = 116_090.0
-    janitor_usd_per_year: float = 25_140.0
+    technician_wage_per_year: float = 37_860.0
+    forklift_operator_wage_per_year: float = 32_660.0
+    truck_driver_wage_per_year: float = 33_490.0
+    supervisor_wage_per_year: float = 58_150.0
+    chief_executive_wage_per_year: float = 178_400.0
+    electrical_engineer_wage_per_year: float = 93_380.0
+    sales_manager_wage_per_year: float = 85_610.0
+    admin_assistant_wage_per_year: float = 34_000.0
+    security_guard_wage_per_year: float = 27_550.0
+    hr_manager_wage_per_year: float = 100_800.0
+    operations_manager_wage_per_year: float = 116_090.0
+    janitor_wage_per_year: float = 25_140.0
     non_wage_compensation_fraction: float = 0.302
 
 
 @dataclass(frozen=True)
 class EconomicAssumptions:
-    forced_selling_price_usd_per_kwh: Optional[float] = None
+    forced_selling_price_per_kwh: Optional[float] = None
     discount_rate: float = 0.15
     federal_tax_rate: float = 0.393
     state_tax_rate: float = 0.0
-    electricity_testing_usd_per_kwh: float = 0.104
-    hvac_lighting_usd_per_m2_year: float = 2.27 / M2_PER_FT2
-    rent_usd_per_m2_year: float = 9.7 / M2_PER_FT2
+    electricity_testing_cost_per_kwh: float = 0.104
+    hvac_lighting_cost_per_m2_year: float = 2.27 / M2_PER_FT2
+    rent_per_m2_year: float = 9.7 / M2_PER_FT2
     other_direct_cost_fraction_of_wages: float = 0.02
     insurance_fraction_of_direct_costs: float = 0.03
     ga_fraction_of_direct_costs: float = 0.05
@@ -438,8 +407,8 @@ class ThroughputResult:
 class TransportationResult:
     collection_scale: str
     truck_type: str
-    truck_purchase_cost_usd: float
-    truck_operating_cost_usd_per_m: float
+    truck_purchase_cost: float
+    truck_operating_cost_per_m: float
     cargo_volume_m3: float
     cargo_mass_kg: float
     truck_unit_capacity: int
@@ -456,7 +425,7 @@ class TransportationResult:
     container_internal_volume_m3: float
     container_payload_kg: float
     shipping_containers: int
-    shipping_container_cost_usd: float
+    shipping_container_cost: float
 
 
 @dataclass(frozen=True)
@@ -516,60 +485,60 @@ class FacilitySizeResult:
 
 @dataclass(frozen=True)
 class CapitalCostResult:
-    total_test_equipment_usd: float
-    total_materials_handling_usd: float
-    office_and_other_usd: float
-    total_capital_cost_usd: float
+    total_test_equipment_cost: float
+    total_materials_handling_cost: float
+    office_and_other_cost: float
+    total_capital_cost: float
     line_items: Dict[str, float]
 
 
 @dataclass(frozen=True)
 class EmploymentCostResult:
-    total_wages_usd: float
-    non_wage_compensation_usd: float
-    total_employment_cost_usd: float
+    total_wages: float
+    non_wage_compensation_cost: float
+    total_employment_cost: float
     line_items: Dict[str, float]
 
 
 @dataclass(frozen=True)
 class AnnualExpenseResult:
-    annual_revenue_usd: float
-    total_direct_costs_usd: float
-    total_indirect_costs_usd: float
-    total_annual_expenses_usd: float
+    annual_revenue: float
+    total_direct_costs: float
+    total_indirect_costs: float
+    total_annual_expenses: float
     line_items: Dict[str, float]
 
 
 @dataclass(frozen=True)
 class RevenueNPVResult:
-    selling_price_per_unit_usd: float
+    selling_price_per_unit: float
     yield_on_units: float
-    annual_revenue_usd: float
+    annual_revenue: float
     cashflows: list[Dict[str, float]]
-    total_npv_usd: float
+    total_npv: float
 
 
 @dataclass(frozen=True)
 class PurchasePriceResult:
-    purchase_price_usd_per_kwh_nameplate: float
-    effective_repurposing_cost_usd_per_kwh_nameplate: float
+    purchase_price_per_kwh_nameplate: float
+    effective_repurposing_cost_per_kwh_nameplate: float
 
 
 @dataclass(frozen=True)
 class UnitEconomicsResult:
     sellable_energy_kwh_per_year: float
     processed_nameplate_kwh_per_year: float
-    revenue_usd_per_sellable_kwh: float
-    cost_usd_per_sellable_kwh: float
-    direct_cost_usd_per_sellable_kwh: float
-    purchase_cost_usd_per_sellable_kwh: float
-    break_even_selling_price_usd_per_kwh: float
-    annual_break_even_selling_price_usd_per_kwh: float
-    break_even_purchase_price_usd_per_unit: float
-    break_even_purchase_price_usd_per_kwh_nameplate: float
-    annual_profit_before_tax_usd: float
-    annual_profit_after_tax_usd: float
-    annual_profit_before_discounting_usd: float
+    revenue_per_sellable_kwh: float
+    cost_per_sellable_kwh: float
+    direct_cost_per_sellable_kwh: float
+    purchase_cost_per_sellable_kwh: float
+    break_even_selling_price_per_kwh: float
+    annual_break_even_selling_price_per_kwh: float
+    break_even_purchase_price_per_unit: float
+    break_even_purchase_price_per_kwh_nameplate: float
+    annual_profit_before_tax: float
+    annual_profit_after_tax: float
+    annual_profit_before_discounting: float
 
 
 @dataclass(frozen=True)
@@ -592,42 +561,29 @@ class B2UModelResult:
     yearly_operations: list[Dict[str, Any]]
 
     def to_dict(self) -> Dict[str, Any]:
-        currency_code = _currency_code(
-            CurrencyAssumptions(**self.currency) if self.currency else None
-        )
+        """Return a plain dictionary using currency-neutral monetary keys.
+
+        Monetary values are expressed in ``currency["currency"]``. No
+        currency-specific aliases such as ``total_npv_nok`` are added in the
+        v1.0 API; consumers should read the explicit currency metadata instead.
+        """
         return {
-            "module": _with_currency_aliases(self.module, currency_code),
-            "scenario": _with_currency_aliases(self.scenario, currency_code),
+            "module": self.module,
+            "scenario": self.scenario,
             "currency": self.currency,
             "throughput": asdict(self.throughput),
-            "transportation": _with_currency_aliases(
-                asdict(self.transportation), currency_code
-            ),
+            "transportation": asdict(self.transportation),
             "handling": asdict(self.handling),
             "staffing": asdict(self.staffing),
             "facility_size": asdict(self.facility_size),
-            "capital_costs": _with_currency_aliases(
-                asdict(self.capital_costs), currency_code
-            ),
-            "employment_costs": _with_currency_aliases(
-                asdict(self.employment_costs), currency_code
-            ),
-            "annual_expenses": _with_currency_aliases(
-                asdict(self.annual_expenses), currency_code
-            ),
-            "revenue_npv": _with_currency_aliases(
-                asdict(self.revenue_npv), currency_code
-            ),
-            "purchase_price": _with_currency_aliases(
-                asdict(self.purchase_price), currency_code
-            ),
-            "unit_economics": _with_currency_aliases(
-                asdict(self.unit_economics), currency_code
-            ),
+            "capital_costs": asdict(self.capital_costs),
+            "employment_costs": asdict(self.employment_costs),
+            "annual_expenses": asdict(self.annual_expenses),
+            "revenue_npv": asdict(self.revenue_npv),
+            "purchase_price": asdict(self.purchase_price),
+            "unit_economics": asdict(self.unit_economics),
             "reliability": self.reliability,
-            "yearly_operations": _with_currency_aliases(
-                self.yearly_operations, currency_code
-            ),
+            "yearly_operations": self.yearly_operations,
         }
 
 
@@ -637,8 +593,8 @@ TRANSPORT_PROFILES: Dict[str, TransportProfile] = {
         distance_m=_mi_to_m(30.0),
         trip_time_s=2.0 * SECONDS_PER_HOUR,
         truck_type="24\' Box Truck",
-        truck_purchase_cost_usd=62_000.0,
-        truck_operating_cost_usd_per_m=_usd_per_mi_to_usd_per_m(0.4),
+        truck_purchase_cost=62_000.0,
+        truck_operating_cost_per_m=_cost_per_mile_to_cost_per_m(0.4),
         cargo_volume_m3=_ft3_to_m3(10.0 * 10.0 * 24.0),
         cargo_mass_kg=6500.0 / 2.2,
     ),
@@ -647,8 +603,8 @@ TRANSPORT_PROFILES: Dict[str, TransportProfile] = {
         distance_m=_mi_to_m(320.0),
         trip_time_s=8.0 * SECONDS_PER_HOUR,
         truck_type="Class 8 with 48\' trailer",
-        truck_purchase_cost_usd=141_000.0,
-        truck_operating_cost_usd_per_m=_usd_per_mi_to_usd_per_m(0.5),
+        truck_purchase_cost=141_000.0,
+        truck_operating_cost_per_m=_cost_per_mile_to_cost_per_m(0.5),
         cargo_volume_m3=_ft3_to_m3(0.8 * 10.0 * 48.0 * 10.0),
         cargo_mass_kg=50000.0 / 2.2,
     ),
@@ -657,8 +613,8 @@ TRANSPORT_PROFILES: Dict[str, TransportProfile] = {
         distance_m=_mi_to_m(2400.0),
         trip_time_s=44.0 * SECONDS_PER_HOUR,
         truck_type="Class 8 with 48\' trailer",
-        truck_purchase_cost_usd=141_000.0,
-        truck_operating_cost_usd_per_m=_usd_per_mi_to_usd_per_m(0.5),
+        truck_purchase_cost=141_000.0,
+        truck_operating_cost_per_m=_cost_per_mile_to_cost_per_m(0.5),
         cargo_volume_m3=_ft3_to_m3(0.8 * 10.0 * 48.0 * 10.0),
         cargo_mass_kg=50000.0 / 2.2,
     ),
@@ -710,9 +666,9 @@ def _selling_price_per_kwh(
     data: _ComponentData,
     economics: EconomicAssumptions,
 ) -> float:
-    if economics.forced_selling_price_usd_per_kwh is None:
+    if economics.forced_selling_price_per_kwh is None:
         return data.forced_selling_price_per_kwh
-    return economics.forced_selling_price_usd_per_kwh
+    return economics.forced_selling_price_per_kwh
 
 
 def _utilization_for_year(learning: LearningAssumptions, year: int) -> float:
@@ -1134,39 +1090,39 @@ def _build_employment_costs(
     wages: WageAssumptions,
 ) -> EmploymentCostResult:
     line_items = {
-        "technicians_usd": staffing.technicians * wages.technician_usd_per_year,
-        "forklift_operators_usd": (
-            staffing.forklift_operators * wages.forklift_operator_usd_per_year
+        "technicians": staffing.technicians * wages.technician_wage_per_year,
+        "forklift_operators": (
+            staffing.forklift_operators * wages.forklift_operator_wage_per_year
         ),
-        "truck_drivers_usd": staffing.truck_drivers * wages.truck_driver_usd_per_year,
-        "supervisors_usd": staffing.supervisors * wages.supervisor_usd_per_year,
-        "chief_executives_usd": (
-            staffing.chief_executives * wages.chief_executive_usd_per_year
+        "truck_drivers": staffing.truck_drivers * wages.truck_driver_wage_per_year,
+        "supervisors": staffing.supervisors * wages.supervisor_wage_per_year,
+        "chief_executives": (
+            staffing.chief_executives * wages.chief_executive_wage_per_year
         ),
-        "electrical_engineers_usd": (
-            staffing.electrical_engineers * wages.electrical_engineer_usd_per_year
+        "electrical_engineers": (
+            staffing.electrical_engineers * wages.electrical_engineer_wage_per_year
         ),
-        "sales_managers_usd": staffing.sales_managers * wages.sales_manager_usd_per_year,
-        "admin_assistants_usd": (
-            staffing.administrative_assistants * wages.admin_assistant_usd_per_year
+        "sales_managers": staffing.sales_managers * wages.sales_manager_wage_per_year,
+        "admin_assistants": (
+            staffing.administrative_assistants * wages.admin_assistant_wage_per_year
         ),
-        "security_guards_usd": (
-            staffing.security_guards * wages.security_guard_usd_per_year
+        "security_guards": (
+            staffing.security_guards * wages.security_guard_wage_per_year
         ),
-        "hr_personnel_usd": (
-            staffing.human_resources_personnel * wages.hr_manager_usd_per_year
+        "hr_personnel": (
+            staffing.human_resources_personnel * wages.hr_manager_wage_per_year
         ),
-        "operations_managers_usd": (
-            staffing.operations_managers * wages.operations_manager_usd_per_year
+        "operations_managers": (
+            staffing.operations_managers * wages.operations_manager_wage_per_year
         ),
-        "janitors_usd": staffing.janitors * wages.janitor_usd_per_year,
+        "janitors": staffing.janitors * wages.janitor_wage_per_year,
     }
     total_wages = sum(line_items.values())
     non_wage_compensation = wages.non_wage_compensation_fraction * total_wages
     return EmploymentCostResult(
-        total_wages_usd=total_wages,
-        non_wage_compensation_usd=non_wage_compensation,
-        total_employment_cost_usd=total_wages + non_wage_compensation,
+        total_wages=total_wages,
+        non_wage_compensation_cost=non_wage_compensation,
+        total_employment_cost=total_wages + non_wage_compensation,
         line_items=line_items,
     )
 
@@ -1286,7 +1242,7 @@ def _build_facility_size(
         year_one_units,
         scenario.collection_scale,
         scenario.shipping,
-        scenario.capital.shipping_container_cost_usd,
+        scenario.capital.shipping_container_cost,
         scenario.road_freight,
     )
     year_one_staffing = _build_staffing(
@@ -1445,18 +1401,18 @@ def _build_transportation(
     actual_units_per_year: int,
     collection_scale: str,
     shipping: ShippingAssumptions,
-    shipping_container_cost_usd: float,
+    shipping_container_cost: float,
     road_freight: RoadFreightAssumptions = RoadFreightAssumptions(),
 ) -> TransportationResult:
     profile = TRANSPORT_PROFILES[collection_scale]
     truck_type = road_freight.truck_type or profile.truck_type
     truck_purchase_cost = (
-        profile.truck_purchase_cost_usd
+        profile.truck_purchase_cost
         if road_freight.truck_purchase_cost is None
         else road_freight.truck_purchase_cost
     )
     truck_operating_cost_per_m = (
-        profile.truck_operating_cost_usd_per_m
+        profile.truck_operating_cost_per_m
         if road_freight.truck_operating_cost_per_m is None
         else road_freight.truck_operating_cost_per_m
     )
@@ -1480,8 +1436,8 @@ def _build_transportation(
     return TransportationResult(
         collection_scale=collection_scale,
         truck_type=truck_type,
-        truck_purchase_cost_usd=truck_purchase_cost,
-        truck_operating_cost_usd_per_m=truck_operating_cost_per_m,
+        truck_purchase_cost=truck_purchase_cost,
+        truck_operating_cost_per_m=truck_operating_cost_per_m,
         cargo_volume_m3=profile.cargo_volume_m3,
         cargo_mass_kg=profile.cargo_mass_kg,
         truck_unit_capacity=truck_unit_capacity,
@@ -1502,7 +1458,7 @@ def _build_transportation(
         ),
         container_payload_kg=float(packaging["container_payload_kg"]),
         shipping_containers=shipping_containers,
-        shipping_container_cost_usd=shipping_container_cost_usd,
+        shipping_container_cost=shipping_container_cost,
     )
 
 
@@ -1534,36 +1490,36 @@ def _build_capital_costs(
     capital: CapitalCostAssumptions,
 ) -> CapitalCostResult:
     qty_test_channels = facility_size.electrical_test_stations
-    item_test_channels = qty_test_channels * capital.test_channel_cost_usd_per_station
+    item_test_channels = qty_test_channels * capital.test_channel_cost_per_station
     qty_can_hardware = facility_size.electrical_test_stations
-    item_can_hardware = qty_can_hardware * capital.can_hardware_cost_usd_per_station
+    item_can_hardware = qty_can_hardware * capital.can_hardware_cost_per_station
     qty_computers = math.ceil(facility_size.electrical_test_stations / 4.0)
-    item_computers = qty_computers * capital.computer_cost_usd
+    item_computers = qty_computers * capital.computer_cost
     total_test_equipment = item_test_channels + item_can_hardware + item_computers
 
     qty_conveyors_m2 = facility_size.conveyor_width_m * facility_size.conveyor_length_m
-    item_conveyors = qty_conveyors_m2 * capital.conveyor_cost_usd_per_m2
+    item_conveyors = qty_conveyors_m2 * capital.conveyor_cost_per_m2
     qty_upfront_purchases = actual_units_per_year / 12.0
     item_upfront_purchases = qty_upfront_purchases * data.purchase_price_per_unit
-    item_storage_racks = facility_size.total_racks * capital.storage_rack_cost_usd
+    item_storage_racks = facility_size.total_racks * capital.storage_rack_cost
     forklift_count = max(
         1,
         math.ceil((handling.forklift_operator_time_s_per_day / SECONDS_PER_HOUR) / 24.0),
     )
-    item_forklift = forklift_count * capital.forklift_cost_usd
+    item_forklift = forklift_count * capital.forklift_cost
     item_md_truck = (
         transportation.number_of_trucks_and_drivers
-        * transportation.truck_purchase_cost_usd
+        * transportation.truck_purchase_cost
     )
     item_shipping_containers = (
-        transportation.shipping_containers * capital.shipping_container_cost_usd
+        transportation.shipping_containers * capital.shipping_container_cost
     )
     qty_work_stations = (
         facility_size.inspection_stations
         + facility_size.electrical_test_stations
         + facility_size.packing_stations
     )
-    item_work_stations = qty_work_stations * capital.workstation_cost_usd
+    item_work_stations = qty_work_stations * capital.workstation_cost
     total_materials_handling = (
         item_conveyors
         + item_upfront_purchases
@@ -1576,25 +1532,25 @@ def _build_capital_costs(
     total_capital_cost = (
         total_test_equipment
         + total_materials_handling
-        + capital.office_and_other_cost_usd
+        + capital.office_and_other_cost
     )
     line_items = {
-        "battery_test_channels_usd": item_test_channels,
-        "can_hardware_usd": item_can_hardware,
-        "computers_usd": item_computers,
-        "conveyors_usd": item_conveyors,
-        "upfront_battery_purchases_usd": item_upfront_purchases,
-        "storage_racks_usd": item_storage_racks,
-        "forklifts_usd": item_forklift,
-        "md_trucks_usd": item_md_truck,
-        "shipping_containers_usd": item_shipping_containers,
-        "workstations_usd": item_work_stations,
+        "battery_test_channels": item_test_channels,
+        "can_hardware": item_can_hardware,
+        "computers": item_computers,
+        "conveyors": item_conveyors,
+        "upfront_battery_purchases": item_upfront_purchases,
+        "storage_racks": item_storage_racks,
+        "forklifts": item_forklift,
+        "md_trucks": item_md_truck,
+        "shipping_containers": item_shipping_containers,
+        "workstations": item_work_stations,
     }
     return CapitalCostResult(
-        total_test_equipment_usd=total_test_equipment,
-        total_materials_handling_usd=total_materials_handling,
-        office_and_other_usd=capital.office_and_other_cost_usd,
-        total_capital_cost_usd=total_capital_cost,
+        total_test_equipment_cost=total_test_equipment,
+        total_materials_handling_cost=total_materials_handling,
+        office_and_other_cost=capital.office_and_other_cost,
+        total_capital_cost=total_capital_cost,
         line_items=line_items,
     )
 
@@ -1605,26 +1561,26 @@ def _build_annual_expenses(
     transportation: TransportationResult,
     facility_size: FacilitySizeResult,
     employment_costs: EmploymentCostResult,
-    annual_revenue_usd: float,
+    annual_revenue: float,
     annual_electricity_testing_kwh: float,
     economics: EconomicAssumptions,
 ) -> AnnualExpenseResult:
     battery_units_cost = actual_units_per_year * data.purchase_price_per_unit
-    labor_cost = employment_costs.total_employment_cost_usd
-    rent_cost = facility_size.total_facility_area_m2 * economics.rent_usd_per_m2_year
+    labor_cost = employment_costs.total_employment_cost
+    rent_cost = facility_size.total_facility_area_m2 * economics.rent_per_m2_year
     electricity_testing_cost = (
-        annual_electricity_testing_kwh * economics.electricity_testing_usd_per_kwh
+        annual_electricity_testing_kwh * economics.electricity_testing_cost_per_kwh
     )
     hvac_lighting_cost = (
-        facility_size.total_facility_area_m2 * economics.hvac_lighting_usd_per_m2_year
+        facility_size.total_facility_area_m2 * economics.hvac_lighting_cost_per_m2_year
     )
     transportation_cost = (
         transportation.total_distance_m_per_year
-        * transportation.truck_operating_cost_usd_per_m
+        * transportation.truck_operating_cost_per_m
     )
     other_direct_cost = (
         economics.other_direct_cost_fraction_of_wages
-        * employment_costs.total_wages_usd
+        * employment_costs.total_wages
     )
     total_direct_costs = (
         battery_units_cost
@@ -1637,28 +1593,28 @@ def _build_annual_expenses(
     )
     insurance_cost = economics.insurance_fraction_of_direct_costs * total_direct_costs
     ga_cost = economics.ga_fraction_of_direct_costs * total_direct_costs
-    warranty_cost = economics.warranty_fraction_of_revenue * annual_revenue_usd
+    warranty_cost = economics.warranty_fraction_of_revenue * annual_revenue
     rnd_cost = economics.rnd_fraction_of_direct_costs * total_direct_costs
     total_indirect_costs = insurance_cost + ga_cost + warranty_cost + rnd_cost
     total_annual_expenses = total_direct_costs + total_indirect_costs
     line_items = {
-        "battery_units_usd": battery_units_cost,
-        "labor_usd": labor_cost,
-        "rent_usd": rent_cost,
-        "electricity_testing_usd": electricity_testing_cost,
-        "electricity_hvac_lighting_usd": hvac_lighting_cost,
-        "transportation_usd": transportation_cost,
-        "other_direct_usd": other_direct_cost,
-        "insurance_usd": insurance_cost,
-        "ga_usd": ga_cost,
-        "warranty_usd": warranty_cost,
-        "rnd_usd": rnd_cost,
+        "battery_units": battery_units_cost,
+        "labor": labor_cost,
+        "rent": rent_cost,
+        "electricity_testing": electricity_testing_cost,
+        "electricity_hvac_lighting": hvac_lighting_cost,
+        "transportation": transportation_cost,
+        "other_direct": other_direct_cost,
+        "insurance": insurance_cost,
+        "ga": ga_cost,
+        "warranty": warranty_cost,
+        "rnd": rnd_cost,
     }
     return AnnualExpenseResult(
-        annual_revenue_usd=annual_revenue_usd,
-        total_direct_costs_usd=total_direct_costs,
-        total_indirect_costs_usd=total_indirect_costs,
-        total_annual_expenses_usd=total_annual_expenses,
+        annual_revenue=annual_revenue,
+        total_direct_costs=total_direct_costs,
+        total_indirect_costs=total_indirect_costs,
+        total_annual_expenses=total_annual_expenses,
         line_items=line_items,
     )
 
@@ -1674,22 +1630,17 @@ def _build_unit_economics(
     actual_units_per_year: int,
     reliability_summary: Dict[str, Any],
     annual_expenses: AnnualExpenseResult,
-    annual_revenue_usd: float,
+    annual_revenue: float,
     economics: EconomicAssumptions,
 ) -> UnitEconomicsResult:
-    """Build per-kWh and break-even economics in scenario currency.
-
-    The field names keep the historic ``*_usd`` suffix, but the numerical values
-    are in the scenario currency. For Norwegian scenarios, ``to_dict`` also adds
-    NOK aliases through ``_with_currency_aliases``.
-    """
+    """Build per-kWh and break-even economics in scenario currency."""
     sellable_energy_kwh = (
         reliability_summary["mean_sellable_energy_kwh_per_unit"]
         * actual_units_per_year
     )
     processed_nameplate_kwh = data.nameplate_energy_kwh * actual_units_per_year
     purchase_cost = data.purchase_price_per_unit * actual_units_per_year
-    direct_without_purchase = annual_expenses.total_direct_costs_usd - purchase_cost
+    direct_without_purchase = annual_expenses.total_direct_costs - purchase_cost
     indirect_fraction_on_direct = (
         economics.insurance_fraction_of_direct_costs
         + economics.ga_fraction_of_direct_costs
@@ -1698,14 +1649,14 @@ def _build_unit_economics(
     warranty_fraction = economics.warranty_fraction_of_revenue
 
     target_purchase_cost = (
-        annual_revenue_usd * (1.0 - warranty_fraction)
+        annual_revenue * (1.0 - warranty_fraction)
         - (1.0 + indirect_fraction_on_direct) * direct_without_purchase
     ) / (1.0 + indirect_fraction_on_direct)
     break_even_purchase_price_per_unit = _safe_divide(
         target_purchase_cost, actual_units_per_year
     )
 
-    profit_before_tax = annual_revenue_usd - annual_expenses.total_annual_expenses_usd
+    profit_before_tax = annual_revenue - annual_expenses.total_annual_expenses
     # Tax is paid only in profitable years.  The model deliberately does not
     # monetize losses or carry tax losses forward to later years; this is a
     # conservative project-boundary simplification.
@@ -1721,8 +1672,8 @@ def _build_unit_economics(
     # This avoids the circular dependency where warranty cost depends on the
     # input selling price.
     # Formula: p = non_warranty_expenses / ((1 - warranty_fraction) * sellable_kwh)
-    warranty_cost = annual_expenses.line_items.get("warranty_usd", 0.0)
-    non_warranty_expenses = annual_expenses.total_annual_expenses_usd - warranty_cost
+    warranty_cost = annual_expenses.line_items.get("warranty", 0.0)
+    non_warranty_expenses = annual_expenses.total_annual_expenses - warranty_cost
     if sellable_energy_kwh <= 0 or warranty_fraction >= 1.0:
         annual_break_even_price = float("nan")
     else:
@@ -1733,31 +1684,29 @@ def _build_unit_economics(
     return UnitEconomicsResult(
         sellable_energy_kwh_per_year=sellable_energy_kwh,
         processed_nameplate_kwh_per_year=processed_nameplate_kwh,
-        revenue_usd_per_sellable_kwh=_safe_divide(
-            annual_revenue_usd, sellable_energy_kwh
+        revenue_per_sellable_kwh=_safe_divide(
+            annual_revenue, sellable_energy_kwh
         ),
-        cost_usd_per_sellable_kwh=_safe_divide(
-            annual_expenses.total_annual_expenses_usd, sellable_energy_kwh
+        cost_per_sellable_kwh=_safe_divide(
+            annual_expenses.total_annual_expenses, sellable_energy_kwh
         ),
-        direct_cost_usd_per_sellable_kwh=_safe_divide(
-            annual_expenses.total_direct_costs_usd, sellable_energy_kwh
+        direct_cost_per_sellable_kwh=_safe_divide(
+            annual_expenses.total_direct_costs, sellable_energy_kwh
         ),
-        purchase_cost_usd_per_sellable_kwh=_safe_divide(
+        purchase_cost_per_sellable_kwh=_safe_divide(
             purchase_cost, sellable_energy_kwh
         ),
-        # Backwards-compatible alias: keep the legacy field name, but store the
-        # corrected non-circular annual break-even price.  The old formula used
-        # total expenses including warranty based on the actual selling price,
-        # which made this field depend on the input selling price.
-        break_even_selling_price_usd_per_kwh=annual_break_even_price,
-        annual_break_even_selling_price_usd_per_kwh=annual_break_even_price,
-        break_even_purchase_price_usd_per_unit=break_even_purchase_price_per_unit,
-        break_even_purchase_price_usd_per_kwh_nameplate=_safe_divide(
+        # Keep this non-circular annual break-even price separate from the NPV
+        # break-even price solved in ``max_purchase_price.py``.
+        break_even_selling_price_per_kwh=annual_break_even_price,
+        annual_break_even_selling_price_per_kwh=annual_break_even_price,
+        break_even_purchase_price_per_unit=break_even_purchase_price_per_unit,
+        break_even_purchase_price_per_kwh_nameplate=_safe_divide(
             break_even_purchase_price_per_unit, data.nameplate_energy_kwh
         ),
-        annual_profit_before_tax_usd=profit_before_tax,
-        annual_profit_after_tax_usd=profit_after_tax,
-        annual_profit_before_discounting_usd=profit_after_tax,
+        annual_profit_before_tax=profit_before_tax,
+        annual_profit_after_tax=profit_after_tax,
+        annual_profit_before_discounting=profit_after_tax,
     )
 
 
@@ -1765,18 +1714,18 @@ def _build_purchase_price(
     data: _ComponentData,
     economics: EconomicAssumptions,
 ) -> PurchasePriceResult:
-    selling_price_per_unit_usd = (
+    selling_price_per_unit = (
         _selling_price_per_kwh(data, economics) * data.nameplate_energy_kwh
     )
     purchase_price = (
         data.purchase_price_per_unit / data.nameplate_energy_kwh
     )
     repurposing_cost = (
-        selling_price_per_unit_usd - data.purchase_price_per_unit
+        selling_price_per_unit - data.purchase_price_per_unit
     ) / data.nameplate_energy_kwh
     return PurchasePriceResult(
-        purchase_price_usd_per_kwh_nameplate=purchase_price,
-        effective_repurposing_cost_usd_per_kwh_nameplate=repurposing_cost,
+        purchase_price_per_kwh_nameplate=purchase_price,
+        effective_repurposing_cost_per_kwh_nameplate=repurposing_cost,
     )
 
 
@@ -1793,7 +1742,7 @@ def _build_year_operation(
         state["actual_units_per_year"],
         scenario.collection_scale,
         scenario.shipping,
-        scenario.capital.shipping_container_cost_usd,
+        scenario.capital.shipping_container_cost,
         scenario.road_freight,
     )
     staffing = _build_staffing(
@@ -1805,7 +1754,7 @@ def _build_year_operation(
         transportation.number_of_trucks_and_drivers,
     )
     employment_costs = _build_employment_costs(staffing, scenario.wages)
-    annual_revenue_usd = (
+    annual_revenue = (
         _selling_price_per_kwh(data, scenario.economics)
         * reliability_summary["mean_sellable_energy_kwh_per_unit"]
         * state["actual_units_per_year"]
@@ -1816,11 +1765,11 @@ def _build_year_operation(
         transportation,
         facility_size,
         employment_costs,
-        annual_revenue_usd,
+        annual_revenue,
         state["annual_electricity_testing_kwh"],
         scenario.economics,
     )
-    profit_before_tax = annual_revenue_usd - annual_expenses.total_annual_expenses_usd
+    profit_before_tax = annual_revenue - annual_expenses.total_annual_expenses
     # Tax is paid only in profitable years.  Loss carryforward is excluded from
     # the default TEA model to avoid firm-level tax assumptions outside the
     # project boundary.
@@ -1830,7 +1779,7 @@ def _build_year_operation(
         * (scenario.economics.federal_tax_rate + scenario.economics.state_tax_rate),
     )
     profit_after_tax = profit_before_tax - taxes
-    annual_npv_usd = profit_after_tax / (
+    annual_npv = profit_after_tax / (
         (1.0 + scenario.economics.discount_rate) ** year
     )
     return {
@@ -1849,9 +1798,9 @@ def _build_year_operation(
         "bottleneck_step": state["bottleneck_step"],
         "technicians": staffing.technicians,
         "forklift_operators": staffing.forklift_operators,
-        "annual_revenue_usd": annual_revenue_usd,
-        "total_annual_expenses_usd": annual_expenses.total_annual_expenses_usd,
-        "annual_npv_usd": annual_npv_usd,
+        "annual_revenue": annual_revenue,
+        "total_annual_expenses": annual_expenses.total_annual_expenses,
+        "annual_npv": annual_npv,
         "transportation": transportation,
         "handling": _build_handling(
             state["actual_units_per_day"],
@@ -1861,8 +1810,8 @@ def _build_year_operation(
         "staffing": staffing,
         "employment_costs": employment_costs,
         "annual_expenses": annual_expenses,
-        "annual_profit_after_tax_usd": profit_after_tax,
-        "taxes_usd": taxes,
+        "annual_profit_after_tax": profit_after_tax,
+        "taxes": taxes,
     }
 
 
@@ -1898,7 +1847,7 @@ def run_b2u_scenario(
         scenario.capital,
     )
 
-    selling_price_per_unit_usd = (
+    selling_price_per_unit = (
         _selling_price_per_kwh(data, scenario.economics) * data.nameplate_energy_kwh
     )
     yield_on_units = float(reliability["usable_fraction"])
@@ -1926,11 +1875,11 @@ def run_b2u_scenario(
             "actual_units_per_year": 0.0,
             "actual_throughput_kwh": 0.0,
             "bottleneck_step": "capital",
-            "expenses_usd": capital_costs.total_capital_cost_usd,
-            "taxes_usd": 0.0,
-            "revenue_usd": 0.0,
-            "profit_after_tax_usd": -capital_costs.total_capital_cost_usd,
-            "annual_npv_usd": -capital_costs.total_capital_cost_usd,
+            "expenses": capital_costs.total_capital_cost,
+            "taxes": 0.0,
+            "revenue": 0.0,
+            "profit_after_tax": -capital_costs.total_capital_cost,
+            "annual_npv": -capital_costs.total_capital_cost,
         }
     ]
     for year_state in year_ops:
@@ -1943,23 +1892,23 @@ def run_b2u_scenario(
                 "actual_units_per_year": float(year_state["actual_units_per_year"]),
                 "actual_throughput_kwh": year_state["actual_throughput_kwh"],
                 "bottleneck_step": year_state["bottleneck_step"],
-                "expenses_usd": annual_expense.total_annual_expenses_usd,
-                "taxes_usd": year_state["taxes_usd"],
-                "revenue_usd": year_state["annual_revenue_usd"],
-                "profit_after_tax_usd": year_state[
-                    "annual_profit_after_tax_usd"
+                "expenses": annual_expense.total_annual_expenses,
+                "taxes": year_state["taxes"],
+                "revenue": year_state["annual_revenue"],
+                "profit_after_tax": year_state[
+                    "annual_profit_after_tax"
                 ],
-                "annual_npv_usd": year_state["annual_npv_usd"],
+                "annual_npv": year_state["annual_npv"],
             }
         )
 
-    total_npv = sum(item["annual_npv_usd"] for item in cashflows)
+    total_npv = sum(item["annual_npv"] for item in cashflows)
     revenue_npv = RevenueNPVResult(
-        selling_price_per_unit_usd=selling_price_per_unit_usd,
+        selling_price_per_unit=selling_price_per_unit,
         yield_on_units=yield_on_units,
-        annual_revenue_usd=first_year["annual_revenue_usd"],
+        annual_revenue=first_year["annual_revenue"],
         cashflows=cashflows,
-        total_npv_usd=total_npv,
+        total_npv=total_npv,
     )
 
     purchase_price = _build_purchase_price(data, scenario.economics)
@@ -1968,7 +1917,7 @@ def run_b2u_scenario(
         actual_units_per_year=first_year["actual_units_per_year"],
         reliability_summary=reliability,
         annual_expenses=annual_expenses,
-        annual_revenue_usd=first_year["annual_revenue_usd"],
+        annual_revenue=first_year["annual_revenue"],
         economics=scenario.economics,
     )
     yearly_operations = [
@@ -1988,11 +1937,11 @@ def run_b2u_scenario(
             "bottleneck_step": op["bottleneck_step"],
             "technicians": op["staffing"].technicians,
             "forklift_operators": op["staffing"].forklift_operators,
-            "annual_revenue_usd": op["annual_revenue_usd"],
-            "total_annual_expenses_usd": op[
+            "annual_revenue": op["annual_revenue"],
+            "total_annual_expenses": op[
                 "annual_expenses"
-            ].total_annual_expenses_usd,
-            "annual_npv_usd": op["annual_npv_usd"],
+            ].total_annual_expenses,
+            "annual_npv": op["annual_npv"],
         }
         for op in year_ops
     ]

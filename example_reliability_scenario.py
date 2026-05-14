@@ -54,4 +54,4 @@ for scenario in [base, monte_carlo_yield, monte_carlo_remaining_energy]:
     output = result.to_dict()
     print(f"\n=== {scenario.name} ===")
     print(json.dumps(output["reliability"], indent=2))
-    print(f"Total NPV: {output['revenue_npv']['total_npv_usd']:.2f}")
+    print(f"Total NPV: {output['revenue_npv']['total_npv']:.2f}")

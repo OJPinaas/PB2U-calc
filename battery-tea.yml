@@ -14,7 +14,7 @@ dependencies:
   - ipykernel
 
   # Battery modeling
-  - pybamm  # installs PyBaMM plus optional deps available on conda-forge :contentReference[oaicite:5]{index=5}
+  - pybamm
 
   # Calibration / stats / uncertainty
   - scikit-learn

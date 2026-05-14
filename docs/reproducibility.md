@@ -48,4 +48,10 @@ Typical generated CSV files include:
 - `outputs/tables/norway_throughput_scaling_summary.csv`
 - `outputs/tables/throughput_unit_requirements_1gwh.csv`
 
-The exact numerical output can show very small Monte Carlo sampling variation for cases where component populations are sampled. The thesis-level conclusions are based on scenario-scale differences that are much larger than this numerical noise.
+## Determinism
+
+The thesis scenario factories and reliability simulations use fixed random seeds.
+Repeated runs from the same code revision and dependency environment should
+therefore reproduce the generated CSV outputs exactly. If new stochastic analyses
+are added, give them explicit seed parameters and write those seeds to output
+metadata.

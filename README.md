@@ -87,7 +87,7 @@ Generate figures from the CSV outputs:
 python plot_norway_extended_analysis.py
 ```
 
-The scripts write generated files under `outputs/`: CSV tables in `outputs/tables/` and figures in `outputs/figures/`. The directory is treated as generated output unless explicitly archived.
+The scripts write generated files under `outputs/`: CSV tables in `outputs/tables/` and figures in `outputs/figures/`. The directory is treated as generated output unless explicitly archived. Thesis scenario and reliability runs use fixed random seeds, so repeated runs from the same code revision and dependency environment should reproduce the CSV outputs exactly.
 
 ## Limitations
 

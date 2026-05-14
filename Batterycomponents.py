@@ -58,13 +58,20 @@ class pack:
     def is_usable(self, min_remaining_energy_fraction=0.6):
         return self.percent_remaining_energy >= min_remaining_energy_fraction
 
-    def properties(self):
+    def properties(self, currency: str | None = None):
+        """Print a compact human-readable pack summary.
+
+        Monetary values are interpreted in the active scenario currency. The
+        optional ``currency`` label is only used for display.
+        """
+        money_unit = f" {currency}" if currency else ""
         print("Pack Properties:")
         print(f"- Pack Mass: {self.weight_kg:.2f} kg")
         print(f"- Pack Volume: {self.volume_L:.1f} L")
         print(f"- Pack Footprint: {self.footprint_m2 * 1000:.1f} cm^2")
         print(f"- Approx. Remaining Energy: {self.remaining_energy_kWh:.2f} kWh")
         print(f"- Remaining Energy Fraction: {self.percent_remaining_energy:.2%}")
+        print(f"- Purchase price: {self.purchase_price:.2f}{money_unit}")
         print(f"- Number of Modules: {self.number_of_modules}")
         print(f"- Module Configuration: {self.config}")
 
@@ -212,7 +219,13 @@ class Batterymodule:
             "min_remaining_energy_fraction": min_remaining_energy_fraction,
         }
 
-    def properties(self):
+    def properties(self, currency: str | None = None):
+        """Print a compact human-readable module summary.
+
+        Monetary values are interpreted in the active scenario currency. The
+        optional ``currency`` label is only used for display.
+        """
+        money_unit = f" {currency}" if currency else ""
         print("Module Properties:")
         print(f"- Module Mass: {self.weight_kg:.2f} kg")
         print(f"- Module Volume: {self.volume_L:.1f} L")
@@ -222,10 +235,10 @@ class Batterymodule:
         print(f"- Module Footprint: {self.footprint_m2 * 1000:.1f} cm^2")
         print(f"- Approx. Remaining Energy: {self.remaining_energy_kWh:.2f} kWh")
         print(f"- Number of Cells: {self.number_of_cells}")
-        print(f"- Module purchase price: ${self.purchase_price:.2f}")
+        print(f"- Module purchase price: {self.purchase_price:.2f}{money_unit}")
         print(
-            "- Forced Selling Price: "
-            f"${self.forced_selling_price_per_kWh:.2f} per kWh"
+            "- Forced selling price: "
+            f"{self.forced_selling_price_per_kWh:.2f}{money_unit}/kWh"
         )
         print(f"- Chemistry: {self.chemistry}")
         print(f"- Cell Configuration: {self.config}")

@@ -27,6 +27,9 @@ import math
 from dataclasses import replace
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent
+DATA_DIR = REPO_ROOT / "data"
+
 import b2u
 from Batterycomponents import Batterymodule, pack
 from max_purchase_price import solve_max_purchase_price, solve_npv_break_even_selling_price
@@ -520,7 +523,7 @@ def main() -> None:
         run_case(label, component, scenario, metadata)
         for label, component, scenario, metadata in iter_thesis_cases()
     ]
-    out_path = Path(__file__).resolve().parents[1] / "data" / "thesis_scenario_results.csv"
+    out_path = DATA_DIR / "thesis_scenario_results.csv"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=list(rows[0].keys()))

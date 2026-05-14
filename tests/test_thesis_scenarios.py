@@ -1,11 +1,18 @@
 """Tests for the reduced thesis scenario set."""
 
 import unittest
+from pathlib import Path
 
 import b2u
 from max_purchase_price import solve_max_purchase_price
+import thesis_scenarios
 from thesis_scenarios import make_nrel_reference_module, make_nrel_reference_scenario
 
+
+class TestThesisOutputPaths(unittest.TestCase):
+    def test_data_dir_is_inside_repository_root(self):
+        expected = Path(thesis_scenarios.__file__).resolve().parent / "data"
+        self.assertEqual(thesis_scenarios.DATA_DIR, expected)
 
 class TestNRELReferenceCase(unittest.TestCase):
     def test_nrel_reference_is_near_break_even(self):

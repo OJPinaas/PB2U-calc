@@ -35,16 +35,25 @@ Consequences:
 - Norwegian cases use `currency == "NOK"` and are defined excluding VAT.
 - VAT metadata is recorded in `CurrencyAssumptions`, but VAT is not included in NPV or profitability calculations.
 
-See [`docs/norway_scenarios.md`](docs/norway_scenarios.md) for details.
+See [`docs/model_overview.md`](docs/model_overview.md), [`docs/norway_scenarios.md`](docs/norway_scenarios.md), [`docs/reproducibility.md`](docs/reproducibility.md), and [`docs/outputs.md`](docs/outputs.md) for details.
 
 ## Installation
 
-The code is written as a lightweight script-based research repository rather than as an installed Python package. From the repository root:
+The code is written as a lightweight script-based research repository rather than as an installed Python package. From the repository root, use either the thesis conda environment or the minimal pip environment. `battery-tea.yml` is left as the thesis development environment; `requirements.txt` is only a lightweight dependency list inferred from the repository imports.
+
+Minimal pip setup:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+Conda setup:
+
+```bash
+conda env create -f battery-tea.yml
+conda activate battery-tea
 ```
 
 On Windows PowerShell:
